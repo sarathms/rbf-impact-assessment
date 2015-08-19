@@ -16,7 +16,7 @@
     border-radius: 0;
 }
 
-.clear_survey_filter, .filter-all, .filter-finished{
+.clear_ia_filter, .filter-all, .filter-finished{
     cursor: pointer;
 }
 
@@ -33,12 +33,12 @@
 }
 
 
-.survey_answer i {
+.ia_answer i {
     padding:3px;
     cursor:pointer;
 }
 
-.survey_answer i.invisible {
+.ia_answer i.invisible {
     visibility: hidden!important;
 }
 
@@ -47,7 +47,7 @@
         display: block;
     }
 
-    .tab-content > .survey_graph > svg {
+    .tab-content > .ia_graph > svg {
         width: 1150px;
     }
 }

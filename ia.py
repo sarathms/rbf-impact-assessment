@@ -35,17 +35,17 @@ import uuid
 
 _logger = logging.getLogger(__name__)
 
-class survey_stage(osv.Model):
-    """Stages for Kanban view of surveys"""
+class ia_stage(osv.Model):
+    """Stages for Kanban view of ias"""
 
-    _name = 'survey.stage'
-    _description = 'Survey Stage'
+    _name = 'ia.stage'
+    _description = 'ia Stage'
     _order = 'sequence,id'
 
     _columns = {
         'name': fields.char(string="Name", required=True, translate=True),
         'sequence': fields.integer(string="Sequence"),
-        'closed': fields.boolean(string="Closed", help="If closed, people won't be able to answer to surveys in this column."),
+        'closed': fields.boolean(string="Closed", help="If closed, people won't be able to answer to ias in this column."),
         'fold': fields.boolean(string="Folded in kanban view")
     }
     _defaults = {
@@ -57,25 +57,25 @@ class survey_stage(osv.Model):
     ]
 
 
-class survey_survey(osv.Model):
-    '''Settings for a multi-page/multi-question survey.
-    Each survey can have one or more attached pages, and each page can display
+class ia(osv.Model):
+    '''Settings for a multi-page/multi-question ia.
+    Each ia can have one or more attached pages, and each page can display
     one or more questions.
     '''
 
-    _name = 'survey.survey'
-    _description = 'Survey'
+    _name = 'ia.ia'
+    _description = 'ia'
     _rec_name = 'title'
     _inherit = ['mail.thread', 'ir.needaction_mixin']
 
     # Protected methods #
 
     def _has_questions(self, cr, uid, ids, context=None):
-        """ Ensure that this survey has at least one page with at least one
+        """ Ensure that this ia has at least one page with at least one
         question. """
-        for survey in self.browse(cr, uid, ids, context=context):
-            if not survey.page_ids or not [page.question_ids
-                            for page in survey.page_ids if page.question_ids]:
+        for ia in self.browse(cr, uid, ids, context=context):
+            if not ia.page_ids or not [page.question_ids
+                            for page in ia.page_ids if page.question_ids]:
                 return False
         return True
 
@@ -83,84 +83,84 @@ class survey_survey(osv.Model):
 
     def _is_designed(self, cr, uid, ids, name, arg, context=None):
         res = dict()
-        for survey in self.browse(cr, uid, ids, context=context):
-            if not survey.page_ids or not [page.question_ids
-                            for page in survey.page_ids if page.question_ids]:
-                res[survey.id] = False
+        for ia in self.browse(cr, uid, ids, context=context):
+            if not ia.page_ids or not [page.question_ids
+                            for page in ia.page_ids if page.question_ids]:
+                res[ia.id] = False
             else:
-                res[survey.id] = True
+                res[ia.id] = True
         return res
 
-    def _get_tot_sent_survey(self, cr, uid, ids, name, arg, context=None):
-        """ Returns the number of invitations sent for this survey, be they
+    def _get_tot_sent_ia(self, cr, uid, ids, name, arg, context=None):
+        """ Returns the number of invitations sent for this ia, be they
         (partially) completed or not """
         res = dict((id, 0) for id in ids)
-        sur_res_obj = self.pool.get('survey.user_input')
+        sur_res_obj = self.pool.get('ia.user_input')
         for id in ids:
             res[id] = sur_res_obj.search(cr, uid,  # SUPERUSER_ID,
-                [('survey_id', '=', id), ('type', '=', 'link')],
+                [('ia_id', '=', id), ('type', '=', 'link')],
                 context=context, count=True)
         return res
 
-    def _get_tot_start_survey(self, cr, uid, ids, name, arg, context=None):
-        """ Returns the number of started instances of this survey, be they
+    def _get_tot_start_ia(self, cr, uid, ids, name, arg, context=None):
+        """ Returns the number of started instances of this ia, be they
         completed or not """
         res = dict((id, 0) for id in ids)
-        sur_res_obj = self.pool.get('survey.user_input')
+        sur_res_obj = self.pool.get('ia.user_input')
         for id in ids:
             res[id] = sur_res_obj.search(cr, uid,  # SUPERUSER_ID,
-                ['&', ('survey_id', '=', id), '|', ('state', '=', 'skip'), ('state', '=', 'done')],
+                ['&', ('ia_id', '=', id), '|', ('state', '=', 'skip'), ('state', '=', 'done')],
                 context=context, count=True)
         return res
 
-    def _get_tot_comp_survey(self, cr, uid, ids, name, arg, context=None):
-        """ Returns the number of completed instances of this survey """
+    def _get_tot_comp_ia(self, cr, uid, ids, name, arg, context=None):
+        """ Returns the number of completed instances of this ia """
         res = dict((id, 0) for id in ids)
-        sur_res_obj = self.pool.get('survey.user_input')
+        sur_res_obj = self.pool.get('ia.user_input')
         for id in ids:
             res[id] = sur_res_obj.search(cr, uid,  # SUPERUSER_ID,
-                [('survey_id', '=', id), ('state', '=', 'done')],
+                [('ia_id', '=', id), ('state', '=', 'done')],
                 context=context, count=True)
         return res
 
     def _get_public_url(self, cr, uid, ids, name, arg, context=None):
-        """ Computes a public URL for the survey """
+        """ Computes a public URL for the ia """
         if context and context.get('relative_url'):
             base_url = '/'
         else:
             base_url = self.pool['ir.config_parameter'].get_param(cr, uid, 'web.base.url')
         res = {}
-        for survey in self.browse(cr, uid, ids, context=context):
-            res[survey.id] = urljoin(base_url, "survey/start/%s" % slug(survey))
+        for ia in self.browse(cr, uid, ids, context=context):
+            res[ia.id] = urljoin(base_url, "ia/start/%s" % slug(ia))
         return res
 
     def _get_public_url_html(self, cr, uid, ids, name, arg, context=None):
-        """ Computes a public URL for the survey (html-embeddable version)"""
+        """ Computes a public URL for the ia (html-embeddable version)"""
         urls = self._get_public_url(cr, uid, ids, name, arg, context=context)
         for id, url in urls.iteritems():
-            urls[id] = '<a href="%s">%s</a>' % (url, _("Click here to start survey"))
+            urls[id] = '<a href="%s">%s</a>' % (url, _("Click here to start ia"))
         return urls
 
     def _get_print_url(self, cr, uid, ids, name, arg, context=None):
-        """ Computes a printing URL for the survey """
+        """ Computes a printing URL for the ia """
         if context and context.get('relative_url'):
             base_url = '/'
         else:
             base_url = self.pool['ir.config_parameter'].get_param(cr, uid, 'web.base.url')
         res = {}
-        for survey in self.browse(cr, uid, ids, context=context):
-            res[survey.id] = urljoin(base_url, "survey/print/%s" % slug(survey))
+        for ia in self.browse(cr, uid, ids, context=context):
+            res[ia.id] = urljoin(base_url, "ia/print/%s" % slug(ia))
         return res
 
     def _get_result_url(self, cr, uid, ids, name, arg, context=None):
-        """ Computes an URL for the survey results """
+        """ Computes an URL for the ia results """
         if context and context.get('relative_url'):
             base_url = '/'
         else:
             base_url = self.pool['ir.config_parameter'].get_param(cr, uid, 'web.base.url')
         res = {}
-        for survey in self.browse(cr, uid, ids, context=context):
-            res[survey.id] = urljoin(base_url, "survey/results/%s" % slug(survey))
+        for ia in self.browse(cr, uid, ids, context=context):
+            res[ia.id] = urljoin(base_url, "ia/results/%s" % slug(ia))
         return res
 
     # Model fields #
@@ -168,23 +168,23 @@ class survey_survey(osv.Model):
     _columns = {
         'title': fields.char('Title', required=1, translate=True),
         'res_model': fields.char('Category'),
-        'page_ids': fields.one2many('survey.page', 'survey_id', 'Pages', copy=True),
-        'stage_id': fields.many2one('survey.stage', string="Stage", ondelete="set null", copy=False),
+        'page_ids': fields.one2many('ia.page', 'ia_id', 'Pages', copy=True),
+        'stage_id': fields.many2one('ia.stage', string="Stage", ondelete="set null", copy=False),
         'auth_required': fields.boolean('Login required',
-            help="Users with a public link will be requested to login before taking part to the survey",
+            help="Users with a public link will be requested to login before taking part to the ia",
             oldname="authenticate"),
         'users_can_go_back': fields.boolean('Users can go back',
             help="If checked, users can go back to previous pages."),
-        'tot_sent_survey': fields.function(_get_tot_sent_survey,
-            string="Number of sent surveys", type="integer"),
-        'tot_start_survey': fields.function(_get_tot_start_survey,
-            string="Number of started surveys", type="integer"),
-        'tot_comp_survey': fields.function(_get_tot_comp_survey,
-            string="Number of completed surveys", type="integer"),
+        'tot_sent_ia': fields.function(_get_tot_sent_ia,
+            string="Number of sent ias", type="integer"),
+        'tot_start_ia': fields.function(_get_tot_start_ia,
+            string="Number of started ias", type="integer"),
+        'tot_comp_ia': fields.function(_get_tot_comp_ia,
+            string="Number of completed ias", type="integer"),
         'description': fields.html('Description', translate=True,
-            oldname="description", help="A long description of the purpose of the survey"),
+            oldname="description", help="A long description of the purpose of the ia"),
         'color': fields.integer('Color Index'),
-        'user_input_ids': fields.one2many('survey.user_input', 'survey_id',
+        'user_input_ids': fields.one2many('ia.user_input', 'ia_id',
             'User responses', readonly=1),
         'designed': fields.function(_is_designed, string="Is designed?",
             type="boolean"),
@@ -199,12 +199,12 @@ class survey_survey(osv.Model):
         'email_template_id': fields.many2one('email.template',
             'Email Template', ondelete='set null'),
         'thank_you_message': fields.html('Thank you message', translate=True,
-            help="This message will be displayed when survey is completed"),
+            help="This message will be displayed when ia is completed"),
         'quizz_mode': fields.boolean(string='Quizz mode')
     }
 
     def _default_stage(self, cr, uid, context=None):
-        ids = self.pool['survey.stage'].search(cr, uid, [], limit=1, context=context)
+        ids = self.pool['ia.stage'].search(cr, uid, [], limit=1, context=context)
         if ids:
             return ids[0]
         return False
@@ -217,7 +217,7 @@ class survey_survey(osv.Model):
     def _read_group_stage_ids(self, cr, uid, ids, domain, read_group_order=None, access_rights_uid=None, context=None):
         """ Read group customization in order to display all the stages in the
         kanban view, even if they are empty """
-        stage_obj = self.pool.get('survey.stage')
+        stage_obj = self.pool.get('ia.stage')
         order = stage_obj._order
         access_rights_uid = access_rights_uid or uid
 
@@ -245,14 +245,14 @@ class survey_survey(osv.Model):
         current_rec = self.read(cr, uid, id, fields=['title'], context=context)
         title = _("%s (copy)") % (current_rec.get('title'))
         default = dict(default or {}, title=title)
-        return super(survey_survey, self).copy_data(cr, uid, id, default,
+        return super(ia_ia, self).copy_data(cr, uid, id, default,
             context=context)
 
     def next_page(self, cr, uid, user_input, page_id, go_back=False, context=None):
         '''The next page to display to the user, knowing that page_id is the id
         of the last displayed page.
 
-        If page_id == 0, it will always return the first page of the survey.
+        If page_id == 0, it will always return the first page of the ia.
 
         If all the pages have been displayed and go_back == False, it will
         return None
@@ -264,8 +264,8 @@ class survey_survey(osv.Model):
             It is assumed here that a careful user will not try to set go_back
             to True if she knows that the page to display is the first one!
             (doing this will probably cause a giant worm to eat her house)'''
-        survey = user_input.survey_id
-        pages = list(enumerate(survey.page_ids))
+        ia = user_input.ia_id
+        pages = list(enumerate(ia.page_ids))
 
         # First page
         if page_id == 0:
@@ -277,7 +277,7 @@ class survey_survey(osv.Model):
         if current_page_index == len(pages) - 1 and not go_back:
             return (None, -1, False)
         # Let's get back, baby!
-        elif go_back and survey.users_can_go_back:
+        elif go_back and ia.users_can_go_back:
             return (pages[current_page_index - 1][1], current_page_index - 1, False)
         else:
             # This will show the last page
@@ -287,16 +287,16 @@ class survey_survey(osv.Model):
             else:
                 return (pages[current_page_index + 1][1], current_page_index + 1, False)
 
-    def filter_input_ids(self, cr, uid, survey, filters, finished=False, context=None):
+    def filter_input_ids(self, cr, uid, ia, filters, finished=False, context=None):
         '''If user applies any filters, then this function returns list of
            filtered user_input_id and label's strings for display data in web.
            :param filters: list of dictionary (having: row_id, ansewr_id)
-           :param finished: True for completely filled survey,Falser otherwise.
+           :param finished: True for completely filled ia,Falser otherwise.
            :returns list of filtered user_input_ids.
         '''
         context = context if context else {}
         if filters:
-            input_line_obj = self.pool.get('survey.user_input_line')
+            input_line_obj = self.pool.get('ia.user_input_line')
             domain_filter, choice, filter_display_data = [], [], []
             for filter in filters:
                 row_id, answer_id = filter['row_id'], filter['answer_id']
@@ -313,9 +313,9 @@ class survey_survey(osv.Model):
         else:
             filtered_input_ids, filter_display_data = [], []
         if finished:
-            user_input = self.pool.get('survey.user_input')
+            user_input = self.pool.get('ia.user_input')
             if not filtered_input_ids:
-                current_filters = user_input.search(cr, uid, [('survey_id', '=', survey.id)], context=context)
+                current_filters = user_input.search(cr, uid, [('ia_id', '=', ia.id)], context=context)
                 user_input_objs = user_input.browse(cr, uid, current_filters, context=context)
             else:
                 user_input_objs = user_input.browse(cr, uid, filtered_input_ids, context=context)
@@ -325,13 +325,13 @@ class survey_survey(osv.Model):
     def get_filter_display_data(self, cr, uid, filters, context):
         '''Returns data to display current filters
         :param filters: list of dictionary (having: row_id, answer_id)
-        :param finished: True for completely filled survey, False otherwise.
+        :param finished: True for completely filled ia, False otherwise.
         :returns list of dict having data to display filters.
         '''
         filter_display_data = []
         if filters:
-            question_obj = self.pool.get('survey.question')
-            label_obj = self.pool.get('survey.label')
+            question_obj = self.pool.get('ia.question')
+            label_obj = self.pool.get('ia.label')
             for filter in filters:
                 row_id, answer_id = filter['row_id'], filter['answer_id']
                 question_id = label_obj.browse(cr, uid, answer_id, context=context).question_id.id
@@ -406,8 +406,8 @@ class survey_survey(osv.Model):
         current_filters = current_filters if current_filters else []
         context = context if context else {}
         result = {}
-        if question.survey_id.user_input_ids:
-            total_input_ids = current_filters or [input_id.id for input_id in question.survey_id.user_input_ids if input_id.state != 'new']
+        if question.ia_id.user_input_ids:
+            total_input_ids = current_filters or [input_id.id for input_id in question.ia_id.user_input_ids if input_id.state != 'new']
             result['total_inputs'] = len(total_input_ids)
             question_input_ids = []
             for user_input in question.user_input_line_ids:
@@ -419,42 +419,42 @@ class survey_survey(osv.Model):
 
     # Actions
 
-    def action_start_survey(self, cr, uid, ids, context=None):
-        ''' Open the website page with the survey form '''
+    def action_start_ia(self, cr, uid, ids, context=None):
+        ''' Open the website page with the ia form '''
         trail = ""
         context = dict(context or {}, relative_url=True)
-        if 'survey_token' in context:
-            trail = "/" + context['survey_token']
+        if 'ia_token' in context:
+            trail = "/" + context['ia_token']
         return {
             'type': 'ir.actions.act_url',
-            'name': "Start Survey",
+            'name': "Start ia",
             'target': 'self',
             'url': self.read(cr, uid, ids, ['public_url'], context=context)[0]['public_url'] + trail
         }
 
-    def action_send_survey(self, cr, uid, ids, context=None):
-        ''' Open a window to compose an email, pre-filled with the survey
+    def action_send_ia(self, cr, uid, ids, context=None):
+        ''' Open a window to compose an email, pre-filled with the ia
         message '''
         if not self._has_questions(cr, uid, ids, context=None):
-            raise osv.except_osv(_('Error!'), _('You cannot send an invitation for a survey that has no questions.'))
+            raise osv.except_osv(_('Error!'), _('You cannot send an invitation for a ia that has no questions.'))
 
-        survey_browse = self.pool.get('survey.survey').browse(cr, uid, ids,
+        ia_browse = self.pool.get('ia.ia').browse(cr, uid, ids,
             context=context)[0]
-        if survey_browse.stage_id.closed:
+        if ia_browse.stage_id.closed:
             raise osv.except_osv(_('Warning!'),
-                _("You cannot send invitations for closed surveys."))
+                _("You cannot send invitations for closed ias."))
 
         assert len(ids) == 1, 'This option should only be used for a single \
-                                survey at a time.'
+                                ia at a time.'
         ir_model_data = self.pool.get('ir.model.data')
         templates = ir_model_data.get_object_reference(cr, uid,
-                                'survey', 'email_template_survey')
+                                'ia', 'email_template_ia')
         template_id = templates[1] if len(templates) > 0 else False
         ctx = dict(context)
 
-        ctx.update({'default_model': 'survey.survey',
+        ctx.update({'default_model': 'ia.ia',
                     'default_res_id': ids[0],
-                    'default_survey_id': ids[0],
+                    'default_ia_id': ids[0],
                     'default_use_template': bool(template_id),
                     'default_template_id': template_id,
                     'default_composition_mode': 'comment'}
@@ -463,40 +463,40 @@ class survey_survey(osv.Model):
             'type': 'ir.actions.act_window',
             'view_type': 'form',
             'view_mode': 'form',
-            'res_model': 'survey.mail.compose.message',
+            'res_model': 'ia.mail.compose.message',
             'target': 'new',
             'context': ctx,
         }
 
-    def action_print_survey(self, cr, uid, ids, context=None):
-        ''' Open the website page with the survey printable view '''
+    def action_print_ia(self, cr, uid, ids, context=None):
+        ''' Open the website page with the ia printable view '''
         trail = ""
         context = dict(context or {}, relative_url=True)
-        if 'survey_token' in context:
-            trail = "/" + context['survey_token']
+        if 'ia_token' in context:
+            trail = "/" + context['ia_token']
         return {
             'type': 'ir.actions.act_url',
-            'name': "Print Survey",
+            'name': "Print ia",
             'target': 'self',
             'url': self.read(cr, uid, ids, ['print_url'], context=context)[0]['print_url'] + trail
         }
 
-    def action_result_survey(self, cr, uid, ids, context=None):
-        ''' Open the website page with the survey results view '''
+    def action_result_ia(self, cr, uid, ids, context=None):
+        ''' Open the website page with the ia results view '''
         context = dict(context or {}, relative_url=True)
         return {
             'type': 'ir.actions.act_url',
-            'name': "Results of the Survey",
+            'name': "Results of the ia",
             'target': 'self',
             'url': self.read(cr, uid, ids, ['result_url'], context=context)[0]['result_url']
         }
 
-    def action_test_survey(self, cr, uid, ids, context=None):
-        ''' Open the website page with the survey form into test mode'''
+    def action_test_ia(self, cr, uid, ids, context=None):
+        ''' Open the website page with the ia form into test mode'''
         context = dict(context or {}, relative_url=True)
         return {
             'type': 'ir.actions.act_url',
-            'name': "Results of the Survey",
+            'name': "Results of the ia",
             'target': 'self',
             'url': self.read(cr, uid, ids, ['public_url'], context=context)[0]['public_url'] + "/phantom"
         }
@@ -504,17 +504,17 @@ class survey_survey(osv.Model):
 
 
 
-class survey_page(osv.Model):
-    '''A page for a survey.
+class ia_page(osv.Model):
+    '''A page for a ia.
 
     Pages are essentially containers, allowing to group questions by ordered
     screens.
 
     .. note::
-        A page should be deleted if the survey it belongs to is deleted. '''
+        A page should be deleted if the ia it belongs to is deleted. '''
 
-    _name = 'survey.page'
-    _description = 'Survey Page'
+    _name = 'ia.page'
+    _description = 'ia Page'
     _rec_name = 'title'
     _order = 'sequence,id'
 
@@ -523,9 +523,9 @@ class survey_page(osv.Model):
     _columns = {
         'title': fields.char('Page Title', required=1,
             translate=True),
-        'survey_id': fields.many2one('survey.survey', 'Survey',
+        'ia_id': fields.many2one('ia.ia', 'ia',
             ondelete='cascade', required=True),
-        'question_ids': fields.one2many('survey.question', 'page_id',
+        'question_ids': fields.one2many('ia.question', 'page_id',
             'Questions', copy=True),
         'sequence': fields.integer('Page number'),
         'description': fields.html('Description',
@@ -542,17 +542,17 @@ class survey_page(osv.Model):
         current_rec = self.read(cr, uid, ids, fields=['title'], context=context)
         title = _("%s (copy)") % (current_rec.get('title'))
         default = dict(default or {}, title=title)
-        return super(survey_page, self).copy_data(cr, uid, ids, default,
+        return super(ia_page, self).copy_data(cr, uid, ids, default,
             context=context)
 
 
-class survey_question(osv.Model):
-    ''' Questions that will be asked in a survey.
+class ia_question(osv.Model):
+    ''' Questions that will be asked in a ia.
 
     Each question can have one of more suggested answers (eg. in case of
     dropdown choices, multi-answer checkboxes, radio buttons...).'''
-    _name = 'survey.question'
-    _description = 'Survey Question'
+    _name = 'ia.question'
+    _description = 'ia Question'
     _rec_name = 'question'
     _order = 'sequence,id'
 
@@ -560,10 +560,10 @@ class survey_question(osv.Model):
 
     _columns = {
         # Question metadata
-        'page_id': fields.many2one('survey.page', 'Survey page',
+        'page_id': fields.many2one('ia.page', 'ia page',
             ondelete='cascade', required=1),
-        'survey_id': fields.related('page_id', 'survey_id', type='many2one',
-            relation='survey.survey', string='Survey'),
+        'ia_id': fields.related('page_id', 'ia_id', type='many2one',
+            relation='ia.ia', string='ia'),
         'sequence': fields.integer(string='Sequence'),
 
         # Question
@@ -582,9 +582,9 @@ class survey_question(osv.Model):
                 ('matrix', 'Matrix')], 'Type of Question', size=15, required=1),
         'matrix_subtype': fields.selection([('simple', 'One choice per row'),
             ('multiple', 'Multiple choices per row')], 'Matrix Type'),
-        'labels_ids': fields.one2many('survey.label',
+        'labels_ids': fields.one2many('ia.label',
             'question_id', 'Types of answers', oldname='answer_choice_ids', copy=True),
-        'labels_ids_2': fields.one2many('survey.label',
+        'labels_ids_2': fields.one2many('ia.label',
             'question_id_2', 'Rows of the Matrix', copy=True),
         # labels are used for proposed choices
         # if question.type == simple choice | multiple choice
@@ -631,7 +631,7 @@ class survey_question(osv.Model):
             oldname="is_require_answer"),
         'constr_error_msg': fields.char("Error message",
             oldname='req_error_msg', translate=True),
-        'user_input_line_ids': fields.one2many('survey.user_input_line',
+        'user_input_line_ids': fields.one2many('ia.user_input_line',
                                                'question_id', 'Answers',
                                                domain=[('skipped', '=', False)]),
     }
@@ -661,7 +661,7 @@ class survey_question(osv.Model):
         current_rec = self.read(cr, uid, ids, context=context)
         question = _("%s (copy)") % (current_rec.get('question'))
         default = dict(default or {}, question=question)
-        return super(survey_question, self).copy_data(cr, uid, ids, default,
+        return super(ia_question, self).copy_data(cr, uid, ids, default,
             context=context)
 
     # Validation methods
@@ -800,12 +800,12 @@ class survey_question(osv.Model):
         return errors
 
 
-class survey_label(osv.Model):
+class ia_label(osv.Model):
     ''' A suggested answer for a question '''
-    _name = 'survey.label'
+    _name = 'ia.label'
     _rec_name = 'value'
     _order = 'sequence,id'
-    _description = 'Survey Label'
+    _description = 'ia Label'
 
     def _check_question_not_empty(self, cr, uid, ids, context=None):
         '''Ensure that field question_id XOR field question_id_2 is not null'''
@@ -814,9 +814,9 @@ class survey_label(osv.Model):
             return bool(label.question_id) != bool(label.question_id_2)
 
     _columns = {
-        'question_id': fields.many2one('survey.question', 'Question',
+        'question_id': fields.many2one('ia.question', 'Question',
             ondelete='cascade'),
-        'question_id_2': fields.many2one('survey.question', 'Question',
+        'question_id_2': fields.many2one('ia.question', 'Question',
             ondelete='cascade'),
         'sequence': fields.integer('Label Sequence order'),
         'value': fields.char("Suggested value", translate=True,
@@ -831,11 +831,11 @@ class survey_label(osv.Model):
     ]
 
 
-class survey_user_input(osv.Model):
-    ''' Metadata for a set of one user's answers to a particular survey '''
-    _name = "survey.user_input"
+class ia_user_input(osv.Model):
+    ''' Metadata for a set of one user's answers to a particular ia '''
+    _name = "ia.user_input"
     _rec_name = 'date_create'
-    _description = 'Survey User Input'
+    _description = 'ia User Input'
 
     def _quizz_get_score(self, cr, uid, ids, name, args, context=None):
         ret = dict()
@@ -844,12 +844,12 @@ class survey_user_input(osv.Model):
         return ret
 
     _columns = {
-        'survey_id': fields.many2one('survey.survey', 'Survey', required=True,
+        'ia_id': fields.many2one('ia.ia', 'ia', required=True,
                                      readonly=1, ondelete='restrict'),
         'date_create': fields.datetime('Creation Date', required=True,
                                        readonly=1),
         'deadline': fields.datetime("Deadline",
-                                help="Date by which the person can open the survey and submit answers",
+                                help="Date by which the person can open the ia and submit answers",
                                 oldname="date_deadline"),
         'type': fields.selection([('manually', 'Manually'), ('link', 'Link')],
                                  'Answer Type', required=1, readonly=1,
@@ -867,17 +867,17 @@ class survey_user_input(osv.Model):
         'email': fields.char("E-mail", readonly=1),
 
         # Displaying data
-        'last_displayed_page_id': fields.many2one('survey.page',
+        'last_displayed_page_id': fields.many2one('ia.page',
                                               'Last displayed page'),
         # The answers !
-        'user_input_line_ids': fields.one2many('survey.user_input_line',
+        'user_input_line_ids': fields.one2many('ia.user_input_line',
                                                'user_input_id', 'Answers'),
 
         # URLs used to display the answers
-        'result_url': fields.related('survey_id', 'result_url', type='char',
-                                     string="Public link to the survey results"),
-        'print_url': fields.related('survey_id', 'print_url', type='char',
-                                    string="Public link to the empty survey"),
+        'result_url': fields.related('ia_id', 'result_url', type='char',
+                                     string="Public link to the ia results"),
+        'print_url': fields.related('ia_id', 'print_url', type='char',
+                                    string="Public link to the empty ia"),
 
         'quizz_score': fields.function(_quizz_get_score, type="float", string="Score for the quiz")
     }
@@ -900,7 +900,7 @@ class survey_user_input(osv.Model):
 
     def do_clean_emptys(self, cr, uid, automatic=False, context=None):
         ''' Remove empty user inputs that have been created manually
-            (used as a cronjob declared in data/survey_cron.xml) '''
+            (used as a cronjob declared in data/ia_cron.xml) '''
         empty_user_input_ids = self.search(cr, uid, [('type', '=', 'manually'),
                                                      ('state', '=', 'new'),
                                                      ('date_create', '<', (datetime.datetime.now() - datetime.timedelta(hours=1)).strftime(DF))],
@@ -908,21 +908,21 @@ class survey_user_input(osv.Model):
         if empty_user_input_ids:
             self.unlink(cr, uid, empty_user_input_ids, context=context)
 
-    def action_survey_resent(self, cr, uid, ids, context=None):
+    def action_ia_resent(self, cr, uid, ids, context=None):
         ''' Sent again the invitation '''
         record = self.browse(cr, uid, ids[0], context=context)
         context = dict(context or {})
         context.update({
-            'survey_resent_token': True,
+            'ia_resent_token': True,
             'default_partner_ids': record.partner_id and [record.partner_id.id] or [],
             'default_multi_email': record.email or "",
             'default_public': 'email_private',
         })
-        return self.pool.get('survey.survey').action_send_survey(cr, uid,
-            [record.survey_id.id], context=context)
+        return self.pool.get('ia.ia').action_send_ia(cr, uid,
+            [record.ia_id.id], context=context)
 
     def action_view_answers(self, cr, uid, ids, context=None):
-        ''' Open the website page with the survey form '''
+        ''' Open the website page with the ia form '''
         user_input = self.read(cr, uid, ids, ['print_url', 'token'], context=context)[0]
         return {
             'type': 'ir.actions.act_url',
@@ -931,19 +931,19 @@ class survey_user_input(osv.Model):
             'url': '%s/%s' % (user_input['print_url'], user_input['token'])
         }
 
-    def action_survey_results(self, cr, uid, ids, context=None):
-        ''' Open the website page with the survey results '''
+    def action_ia_results(self, cr, uid, ids, context=None):
+        ''' Open the website page with the ia results '''
         return {
             'type': 'ir.actions.act_url',
-            'name': "Survey Results",
+            'name': "ia Results",
             'target': 'self',
             'url': self.read(cr, uid, ids, ['result_url'], context=context)[0]['result_url']
         }
 
 
-class survey_user_input_line(osv.Model):
-    _name = 'survey.user_input_line'
-    _description = 'Survey User Input Line'
+class ia_user_input_line(osv.Model):
+    _name = 'ia.user_input_line'
+    _description = 'ia User Input Line'
     _rec_name = 'date_create'
 
     def _answered_or_skipped(self, cr, uid, ids, context=None):
@@ -968,15 +968,15 @@ class survey_user_input_line(osv.Model):
             return True
 
     _columns = {
-        'user_input_id': fields.many2one('survey.user_input', 'User Input',
+        'user_input_id': fields.many2one('ia.user_input', 'User Input',
                                          ondelete='cascade', required=1),
-        'question_id': fields.many2one('survey.question', 'Question',
+        'question_id': fields.many2one('ia.question', 'Question',
                                        ondelete='restrict', required=1),
         'page_id': fields.related('question_id', 'page_id', type='many2one',
-                                  relation='survey.page', string="Page"),
-        'survey_id': fields.related('user_input_id', 'survey_id',
-                                    type="many2one", relation="survey.survey",
-                                    string='Survey', store=True),
+                                  relation='ia.page', string="Page"),
+        'ia_id': fields.related('user_input_id', 'ia_id',
+                                    type="many2one", relation="ia.ia",
+                                    string='ia', store=True),
         'date_create': fields.datetime('Create Date', required=1),
         'skipped': fields.boolean('Skipped'),
         'answer_type': fields.selection([('text', 'Text'),
@@ -989,8 +989,8 @@ class survey_user_input_line(osv.Model):
         'value_number': fields.float("Numerical answer"),
         'value_date': fields.datetime("Date answer"),
         'value_free_text': fields.text("Free Text answer"),
-        'value_suggested': fields.many2one('survey.label', "Suggested answer"),
-        'value_suggested_row': fields.many2one('survey.label', "Row answer"),
+        'value_suggested': fields.many2one('ia.label', "Suggested answer"),
+        'value_suggested_row': fields.many2one('ia.label', "Row answer"),
         'quizz_mark': fields.float("Score given for this answer")
     }
 
@@ -1005,7 +1005,7 @@ class survey_user_input_line(osv.Model):
 
     def __get_mark(self, cr, uid, value_suggested, context=None):
         try:
-            mark = self.pool.get('survey.label').browse(cr, uid, int(value_suggested), context=context).quizz_mark
+            mark = self.pool.get('ia.label').browse(cr, uid, int(value_suggested), context=context).quizz_mark
         except AttributeError:
             mark = 0.0
         except KeyError:
@@ -1018,13 +1018,13 @@ class survey_user_input_line(osv.Model):
         value_suggested = vals.get('value_suggested')
         if value_suggested:
             vals.update({'quizz_mark': self.__get_mark(cr, uid, value_suggested)})
-        return super(survey_user_input_line, self).create(cr, uid, vals, context=context)
+        return super(ia_user_input_line, self).create(cr, uid, vals, context=context)
 
     def write(self, cr, uid, ids, vals, context=None):
         value_suggested = vals.get('value_suggested')
         if value_suggested:
             vals.update({'quizz_mark': self.__get_mark(cr, uid, value_suggested)})
-        return super(survey_user_input_line, self).write(cr, uid, ids, vals, context=context)
+        return super(ia_user_input_line, self).write(cr, uid, ids, vals, context=context)
 
     def copy_data(self, cr, uid, id, default=None, context=None):
         raise osv.except_osv(_('Warning!'), _('You cannot duplicate this \
@@ -1049,7 +1049,7 @@ class survey_user_input_line(osv.Model):
             'user_input_id': user_input_id,
             'question_id': question.id,
             'page_id': question.page_id.id,
-            'survey_id': question.survey_id.id,
+            'ia_id': question.ia_id.id,
             'skipped': False,
         }
         if answer_tag in post and post[answer_tag].strip() != '':
@@ -1057,7 +1057,7 @@ class survey_user_input_line(osv.Model):
         else:
             vals.update({'answer_type': None, 'skipped': True})
         old_uil = self.search(cr, uid, [('user_input_id', '=', user_input_id),
-                                        ('survey_id', '=', question.survey_id.id),
+                                        ('ia_id', '=', question.ia_id.id),
                                         ('question_id', '=', question.id)],
                               context=context)
         if old_uil:
@@ -1071,7 +1071,7 @@ class survey_user_input_line(osv.Model):
             'user_input_id': user_input_id,
             'question_id': question.id,
             'page_id': question.page_id.id,
-            'survey_id': question.survey_id.id,
+            'ia_id': question.ia_id.id,
             'skipped': False
         }
         if answer_tag in post and post[answer_tag].strip() != '':
@@ -1079,7 +1079,7 @@ class survey_user_input_line(osv.Model):
         else:
             vals.update({'answer_type': None, 'skipped': True})
         old_uil = self.search(cr, uid, [('user_input_id', '=', user_input_id),
-                                        ('survey_id', '=', question.survey_id.id),
+                                        ('ia_id', '=', question.ia_id.id),
                                         ('question_id', '=', question.id)],
                               context=context)
         if old_uil:
@@ -1093,7 +1093,7 @@ class survey_user_input_line(osv.Model):
             'user_input_id': user_input_id,
             'question_id': question.id,
             'page_id': question.page_id.id,
-            'survey_id': question.survey_id.id,
+            'ia_id': question.ia_id.id,
             'skipped': False
         }
         if answer_tag in post and post[answer_tag].strip() != '':
@@ -1101,7 +1101,7 @@ class survey_user_input_line(osv.Model):
         else:
             vals.update({'answer_type': None, 'skipped': True})
         old_uil = self.search(cr, uid, [('user_input_id', '=', user_input_id),
-                                        ('survey_id', '=', question.survey_id.id),
+                                        ('ia_id', '=', question.ia_id.id),
                                         ('question_id', '=', question.id)],
                               context=context)
         if old_uil:
@@ -1115,7 +1115,7 @@ class survey_user_input_line(osv.Model):
             'user_input_id': user_input_id,
             'question_id': question.id,
             'page_id': question.page_id.id,
-            'survey_id': question.survey_id.id,
+            'ia_id': question.ia_id.id,
             'skipped': False
         }
         if answer_tag in post and post[answer_tag].strip() != '':
@@ -1123,7 +1123,7 @@ class survey_user_input_line(osv.Model):
         else:
             vals.update({'answer_type': None, 'skipped': True})
         old_uil = self.search(cr, uid, [('user_input_id', '=', user_input_id),
-                                        ('survey_id', '=', question.survey_id.id),
+                                        ('ia_id', '=', question.ia_id.id),
                                         ('question_id', '=', question.id)],
                               context=context)
         if old_uil:
@@ -1137,11 +1137,11 @@ class survey_user_input_line(osv.Model):
             'user_input_id': user_input_id,
             'question_id': question.id,
             'page_id': question.page_id.id,
-            'survey_id': question.survey_id.id,
+            'ia_id': question.ia_id.id,
             'skipped': False
         }
         old_uil = self.search(cr, uid, [('user_input_id', '=', user_input_id),
-                                        ('survey_id', '=', question.survey_id.id),
+                                        ('ia_id', '=', question.ia_id.id),
                                         ('question_id', '=', question.id)],
                               context=context)
         if old_uil:
@@ -1168,11 +1168,11 @@ class survey_user_input_line(osv.Model):
             'user_input_id': user_input_id,
             'question_id': question.id,
             'page_id': question.page_id.id,
-            'survey_id': question.survey_id.id,
+            'ia_id': question.ia_id.id,
             'skipped': False
         }
         old_uil = self.search(cr, uid, [('user_input_id', '=', user_input_id),
-                                        ('survey_id', '=', question.survey_id.id),
+                                        ('ia_id', '=', question.ia_id.id),
                                         ('question_id', '=', question.id)],
                               context=context)
         if old_uil:
@@ -1199,11 +1199,11 @@ class survey_user_input_line(osv.Model):
             'user_input_id': user_input_id,
             'question_id': question.id,
             'page_id': question.page_id.id,
-            'survey_id': question.survey_id.id,
+            'ia_id': question.ia_id.id,
             'skipped': False
         }
         old_uil = self.search(cr, uid, [('user_input_id', '=', user_input_id),
-                                        ('survey_id', '=', question.survey_id.id),
+                                        ('ia_id', '=', question.ia_id.id),
                                         ('question_id', '=', question.id)],
                               context=context)
         if old_uil:

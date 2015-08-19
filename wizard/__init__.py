@@ -19,4 +19,4 @@
 #
 ##############################################################################
 
-import survey_email_compose_message
+import ia_email_compose_message

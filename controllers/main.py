@@ -36,70 +36,70 @@ from openerp.tools.safe_eval import safe_eval
 _logger = logging.getLogger(__name__)
 
 
-class WebsiteSurvey(http.Controller):
+class WebsiteIA(http.Controller):
 
     ## HELPER METHODS ##
 
-    def _check_bad_cases(self, cr, uid, request, survey_obj, survey, user_input_obj, context=None):
-        # In case of bad survey, redirect to surveys list
-        if survey_obj.exists(cr, SUPERUSER_ID, survey.id, context=context) == []:
-            return werkzeug.utils.redirect("/survey/")
+    def _check_bad_cases(self, cr, uid, request, ia_obj, ia, user_input_obj, context=None):
+        # In case of bad ia, redirect to ias list
+        if ia_obj.exists(cr, SUPERUSER_ID, ia.id, context=context) == []:
+            return werkzeug.utils.redirect("/ia/")
 
         # In case of auth required, block public user
-        if survey.auth_required and uid == request.website.user_id.id:
-            return request.website.render("survey.auth_required", {'survey': survey})
+        if ia.auth_required and uid == request.website.user_id.id:
+            return request.website.render("ia.auth_required", {'ia': ia})
 
-        # In case of non open surveys
-        if survey.stage_id.closed:
-            return request.website.render("survey.notopen")
+        # In case of non open ias
+        if ia.stage_id.closed:
+            return request.website.render("ia.notopen")
 
         # If there is no pages
-        if not survey.page_ids:
-            return request.website.render("survey.nopages")
+        if not ia.page_ids:
+            return request.website.render("ia.nopages")
 
         # Everything seems to be ok
         return None
 
     def _check_deadline(self, cr, uid, user_input, context=None):
-        '''Prevent opening of the survey if the deadline has turned out
+        '''Prevent opening of the ia if the deadline has turned out
 
-        ! This will NOT disallow access to users who have already partially filled the survey !'''
+        ! This will NOT disallow access to users who have already partially filled the ia !'''
         if user_input.deadline:
             dt_deadline = datetime.strptime(user_input.deadline, DTF)
             dt_now = datetime.now()
-            if dt_now > dt_deadline:  # survey is not open anymore
-                return request.website.render("survey.notopen")
+            if dt_now > dt_deadline:  # ia is not open anymore
+                return request.website.render("ia.notopen")
 
         return None
 
     ## ROUTES HANDLERS ##
 
-    # Survey start
-    @http.route(['/survey/start/<model("survey.survey"):survey>',
-                 '/survey/start/<model("survey.survey"):survey>/<string:token>'],
+    # ia start
+    @http.route(['/ia/start/<model("ia.ia"):ia>',
+                 '/ia/start/<model("ia.ia"):ia>/<string:token>'],
                 type='http', auth='public', website=True)
-    def start_survey(self, survey, token=None, **post):
+    def start_ia(self, ia, token=None, **post):
         cr, uid, context = request.cr, request.uid, request.context
-        survey_obj = request.registry['survey.survey']
-        user_input_obj = request.registry['survey.user_input']
+        ia_obj = request.registry['ia.ia']
+        user_input_obj = request.registry['ia.user_input']
 
         # Test mode
         if token and token == "phantom":
-            _logger.info("[survey] Phantom mode")
-            user_input_id = user_input_obj.create(cr, uid, {'survey_id': survey.id, 'test_entry': True}, context=context)
+            _logger.info("[ia] Phantom mode")
+            user_input_id = user_input_obj.create(cr, uid, {'ia_id': ia.id, 'test_entry': True}, context=context)
             user_input = user_input_obj.browse(cr, uid, [user_input_id], context=context)[0]
-            data = {'survey': survey, 'page': None, 'token': user_input.token}
-            return request.website.render('survey.survey_init', data)
+            data = {'ia': ia, 'page': None, 'token': user_input.token}
+            return request.website.render('ia.ia_init', data)
         # END Test mode
 
-        # Controls if the survey can be displayed
-        errpage = self._check_bad_cases(cr, uid, request, survey_obj, survey, user_input_obj, context=context)
+        # Controls if the ia can be displayed
+        errpage = self._check_bad_cases(cr, uid, request, ia_obj, ia, user_input_obj, context=context)
         if errpage:
             return errpage
 
-        # Manual surveying
+        # Manual iaing
         if not token:
-            vals = {'survey_id': survey.id}
+            vals = {'ia_id': ia.id}
             if request.website.user_id.id != uid:
                 vals['partner_id'] = request.registry['res.users'].browse(cr, uid, uid, context=context).partner_id.id
             user_input_id = user_input_obj.create(cr, uid, vals, context=context)
@@ -112,30 +112,30 @@ class WebsiteSurvey(http.Controller):
             else:
                 user_input = user_input_obj.browse(cr, uid, [user_input_id], context=context)[0]
 
-        # Do not open expired survey
+        # Do not open expired ia
         errpage = self._check_deadline(cr, uid, user_input, context=context)
         if errpage:
             return errpage
 
         # Select the right page
         if user_input.state == 'new':  # Intro page
-            data = {'survey': survey, 'page': None, 'token': user_input.token}
-            return request.website.render('survey.survey_init', data)
+            data = {'ia': ia, 'page': None, 'token': user_input.token}
+            return request.website.render('ia.ia_init', data)
         else:
-            return request.redirect('/survey/fill/%s/%s' % (survey.id, user_input.token))
+            return request.redirect('/ia/fill/%s/%s' % (ia.id, user_input.token))
 
-    # Survey displaying
-    @http.route(['/survey/fill/<model("survey.survey"):survey>/<string:token>',
-                 '/survey/fill/<model("survey.survey"):survey>/<string:token>/<string:prev>'],
+    # ia displaying
+    @http.route(['/ia/fill/<model("ia.ia"):ia>/<string:token>',
+                 '/ia/fill/<model("ia.ia"):ia>/<string:token>/<string:prev>'],
                 type='http', auth='public', website=True)
-    def fill_survey(self, survey, token, prev=None, **post):
-        '''Display and validates a survey'''
+    def fill_ia(self, ia, token, prev=None, **post):
+        '''Display and validates a ia'''
         cr, uid, context = request.cr, request.uid, request.context
-        survey_obj = request.registry['survey.survey']
-        user_input_obj = request.registry['survey.user_input']
+        ia_obj = request.registry['ia.ia']
+        user_input_obj = request.registry['ia.user_input']
 
-        # Controls if the survey can be displayed
-        errpage = self._check_bad_cases(cr, uid, request, survey_obj, survey, user_input_obj, context=context)
+        # Controls if the ia can be displayed
+        errpage = self._check_bad_cases(cr, uid, request, ia_obj, ia, user_input_obj, context=context)
         if errpage:
             return errpage
 
@@ -147,7 +147,7 @@ class WebsiteSurvey(http.Controller):
         else:
             user_input = user_input_obj.browse(cr, uid, [user_input_id], context=context)[0]
 
-        # Do not display expired survey (even if some pages have already been
+        # Do not display expired ia (even if some pages have already been
         # displayed -- There's a time for everything!)
         errpage = self._check_deadline(cr, uid, user_input, context=context)
         if errpage:
@@ -155,32 +155,32 @@ class WebsiteSurvey(http.Controller):
 
         # Select the right page
         if user_input.state == 'new':  # First page
-            page, page_nr, last = survey_obj.next_page(cr, uid, user_input, 0, go_back=False, context=context)
-            data = {'survey': survey, 'page': page, 'page_nr': page_nr, 'token': user_input.token}
+            page, page_nr, last = ia_obj.next_page(cr, uid, user_input, 0, go_back=False, context=context)
+            data = {'ia': ia, 'page': page, 'page_nr': page_nr, 'token': user_input.token}
             if last:
                 data.update({'last': True})
-            return request.website.render('survey.survey', data)
+            return request.website.render('ia.ia', data)
         elif user_input.state == 'done':  # Display success message
-            return request.website.render('survey.sfinished', {'survey': survey,
+            return request.website.render('ia.sfinished', {'ia': ia,
                                                                'token': token,
                                                                'user_input': user_input})
         elif user_input.state == 'skip':
             flag = (True if prev and prev == 'prev' else False)
-            page, page_nr, last = survey_obj.next_page(cr, uid, user_input, user_input.last_displayed_page_id.id, go_back=flag, context=context)
-            data = {'survey': survey, 'page': page, 'page_nr': page_nr, 'token': user_input.token}
+            page, page_nr, last = ia_obj.next_page(cr, uid, user_input, user_input.last_displayed_page_id.id, go_back=flag, context=context)
+            data = {'ia': ia, 'page': page, 'page_nr': page_nr, 'token': user_input.token}
             if last:
                 data.update({'last': True})
-            return request.website.render('survey.survey', data)
+            return request.website.render('ia.ia', data)
         else:
             return request.website.render("website.403")
 
-    # AJAX prefilling of a survey
-    @http.route(['/survey/prefill/<model("survey.survey"):survey>/<string:token>',
-                 '/survey/prefill/<model("survey.survey"):survey>/<string:token>/<model("survey.page"):page>'],
+    # AJAX prefilling of a ia
+    @http.route(['/ia/prefill/<model("ia.ia"):ia>/<string:token>',
+                 '/ia/prefill/<model("ia.ia"):ia>/<string:token>/<model("ia.page"):page>'],
                 type='http', auth='public', website=True)
-    def prefill(self, survey, token, page=None, **post):
+    def prefill(self, ia, token, page=None, **post):
         cr, uid, context = request.cr, request.uid, request.context
-        user_input_line_obj = request.registry['survey.user_input_line']
+        user_input_line_obj = request.registry['ia.user_input_line']
         ret = {}
 
         # Fetch previous answers
@@ -193,7 +193,7 @@ class WebsiteSurvey(http.Controller):
         # Return non empty answers in a JSON compatible format
         for answer in previous_answers:
             if not answer.skipped:
-                answer_tag = '%s_%s_%s' % (answer.survey_id.id, answer.page_id.id, answer.question_id.id)
+                answer_tag = '%s_%s_%s' % (answer.ia_id.id, answer.page_id.id, answer.question_id.id)
                 answer_value = None
                 if answer.answer_type == 'free_text':
                     answer_value = answer.value_free_text
@@ -215,15 +215,15 @@ class WebsiteSurvey(http.Controller):
                 if answer_value:
                     dict_soft_update(ret, answer_tag, answer_value)
                 else:
-                    _logger.warning("[survey] No answer has been found for question %s marked as non skipped" % answer_tag)
+                    _logger.warning("[ia] No answer has been found for question %s marked as non skipped" % answer_tag)
         return json.dumps(ret)
 
     # AJAX scores loading for quiz correction mode
-    @http.route(['/survey/scores/<model("survey.survey"):survey>/<string:token>'],
+    @http.route(['/ia/scores/<model("ia.ia"):ia>/<string:token>'],
                 type='http', auth='public', website=True)
-    def get_scores(self, survey, token, page=None, **post):
+    def get_scores(self, ia, token, page=None, **post):
         cr, uid, context = request.cr, request.uid, request.context
-        user_input_line_obj = request.registry['survey.user_input_line']
+        user_input_line_obj = request.registry['ia.user_input_line']
         ret = {}
 
         # Fetch answers
@@ -237,21 +237,21 @@ class WebsiteSurvey(http.Controller):
         return json.dumps(ret)
 
     # AJAX submission of a page
-    @http.route(['/survey/submit/<model("survey.survey"):survey>'],
+    @http.route(['/ia/submit/<model("ia.ia"):ia>'],
                 type='http', methods=['POST'], auth='public', website=True)
-    def submit(self, survey, **post):
+    def submit(self, ia, **post):
         _logger.debug('Incoming data: %s', post)
         page_id = int(post['page_id'])
         cr, uid, context = request.cr, request.uid, request.context
-        survey_obj = request.registry['survey.survey']
-        questions_obj = request.registry['survey.question']
+        ia_obj = request.registry['ia.ia']
+        questions_obj = request.registry['ia.question']
         questions_ids = questions_obj.search(cr, uid, [('page_id', '=', page_id)], context=context)
         questions = questions_obj.browse(cr, uid, questions_ids, context=context)
 
         # Answer validation
         errors = {}
         for question in questions:
-            answer_tag = "%s_%s_%s" % (survey.id, page_id, question.id)
+            answer_tag = "%s_%s_%s" % (ia.id, page_id, question.id)
             errors.update(questions_obj.validate_question(cr, uid, question, post, answer_tag, context=context))
 
         ret = {}
@@ -260,66 +260,66 @@ class WebsiteSurvey(http.Controller):
             ret['errors'] = errors
         else:
             # Store answers into database
-            user_input_obj = request.registry['survey.user_input']
+            user_input_obj = request.registry['ia.user_input']
 
-            user_input_line_obj = request.registry['survey.user_input_line']
+            user_input_line_obj = request.registry['ia.user_input_line']
             try:
                 user_input_id = user_input_obj.search(cr, uid, [('token', '=', post['token'])], context=context)[0]
             except KeyError:  # Invalid token
                 return request.website.render("website.403")
             for question in questions:
-                answer_tag = "%s_%s_%s" % (survey.id, page_id, question.id)
+                answer_tag = "%s_%s_%s" % (ia.id, page_id, question.id)
                 user_input_line_obj.save_lines(cr, uid, user_input_id, question, post, answer_tag, context=context)
 
             user_input = user_input_obj.browse(cr, uid, user_input_id, context=context)
             go_back = post['button_submit'] == 'previous'
-            next_page, _, last = survey_obj.next_page(cr, uid, user_input, page_id, go_back=go_back, context=context)
+            next_page, _, last = ia_obj.next_page(cr, uid, user_input, page_id, go_back=go_back, context=context)
             vals = {'last_displayed_page_id': page_id}
             if next_page is None and not go_back:
                 vals.update({'state': 'done'})
             else:
                 vals.update({'state': 'skip'})
             user_input_obj.write(cr, uid, user_input_id, vals, context=context)
-            ret['redirect'] = '/survey/fill/%s/%s' % (survey.id, post['token'])
+            ret['redirect'] = '/ia/fill/%s/%s' % (ia.id, post['token'])
             if go_back:
                 ret['redirect'] += '/prev'
         return json.dumps(ret)
 
     # Printing routes
-    @http.route(['/survey/print/<model("survey.survey"):survey>',
-                 '/survey/print/<model("survey.survey"):survey>/<string:token>'],
+    @http.route(['/ia/print/<model("ia.ia"):ia>',
+                 '/ia/print/<model("ia.ia"):ia>/<string:token>'],
                 type='http', auth='public', website=True)
-    def print_survey(self, survey, token=None, **post):
-        '''Display an survey in printable view; if <token> is set, it will
+    def print_ia(self, ia, token=None, **post):
+        '''Display an ia in printable view; if <token> is set, it will
         grab the answers of the user_input_id that has <token>.'''
-        return request.website.render('survey.survey_print',
-                                      {'survey': survey,
+        return request.website.render('ia.ia_print',
+                                      {'ia': ia,
                                        'token': token,
                                        'page_nr': 0,
-                                       'quizz_correction': True if survey.quizz_mode and token else False})
+                                       'quizz_correction': True if ia.quizz_mode and token else False})
 
-    @http.route(['/survey/results/<model("survey.survey"):survey>'],
+    @http.route(['/ia/results/<model("ia.ia"):ia>'],
                 type='http', auth='user', website=True)
-    def survey_reporting(self, survey, token=None, **post):
-        '''Display survey Results & Statistics for given survey.'''
-        result_template ='survey.result'
+    def ia_reporting(self, ia, token=None, **post):
+        '''Display ia Results & Statistics for given ia.'''
+        result_template ='ia.result'
         current_filters = []
         filter_display_data = []
         filter_finish = False
 
-        survey_obj = request.registry['survey.survey']
-        if not survey.user_input_ids or not [input_id.id for input_id in survey.user_input_ids if input_id.state != 'new']:
-            result_template = 'survey.no_result'
+        ia_obj = request.registry['ia.ia']
+        if not ia.user_input_ids or not [input_id.id for input_id in ia.user_input_ids if input_id.state != 'new']:
+            result_template = 'ia.no_result'
         if 'finished' in post:
             post.pop('finished')
             filter_finish = True
         if post or filter_finish:
             filter_data = self.get_filter_data(post)
-            current_filters = survey_obj.filter_input_ids(request.cr, request.uid, survey, filter_data, filter_finish, context=request.context)
-            filter_display_data = survey_obj.get_filter_display_data(request.cr, request.uid, filter_data, context=request.context)
+            current_filters = ia_obj.filter_input_ids(request.cr, request.uid, ia, filter_data, filter_finish, context=request.context)
+            filter_display_data = ia_obj.get_filter_display_data(request.cr, request.uid, filter_data, context=request.context)
         return request.website.render(result_template,
-                                      {'survey': survey,
-                                       'survey_dict': self.prepare_result_dict(survey, current_filters),
+                                      {'ia': ia,
+                                       'ia_dict': self.prepare_result_dict(ia, current_filters),
                                        'page_range': self.page_range,
                                        'current_filters': current_filters,
                                        'filter_display_data': filter_display_data,
@@ -328,8 +328,8 @@ class WebsiteSurvey(http.Controller):
         # Quick retroengineering of what is injected into the template for now:
         # (TODO: flatten and simplify this)
         #
-        #     survey: a browse record of the survey
-        #     survey_dict: very messy dict containing all the info to display answers
+        #     ia: a browse record of the ia
+        #     ia_dict: very messy dict containing all the info to display answers
         #         {'page_ids': [
         #
         #             ...
@@ -360,18 +360,18 @@ class WebsiteSurvey(http.Controller):
         #     page_range: pager helper function
         #     current_filters: a list of ids
         #     filter_display_data: [{'labels': ['a', 'b'], question_text} ...  ]
-        #     filter_finish: boolean => only finished surveys or not
+        #     filter_finish: boolean => only finished ias or not
         #
 
-    def prepare_result_dict(self,survey, current_filters=None):
+    def prepare_result_dict(self,ia, current_filters=None):
         """Returns dictionary having values for rendering template"""
         current_filters = current_filters if current_filters else []
-        survey_obj = request.registry['survey.survey']
+        ia_obj = request.registry['ia.ia']
         result = {'page_ids': []}
-        for page in survey.page_ids:
+        for page in ia.page_ids:
             page_dict = {'page': page, 'question_ids': []}
             for question in page.question_ids:
-                question_dict = {'question':question, 'input_summary':survey_obj.get_input_summary(request.cr, request.uid, question, current_filters, context=request.context), 'prepare_result':survey_obj.prepare_result(request.cr, request.uid, question, current_filters, context=request.context), 'graph_data': self.get_graph_data(question, current_filters)}
+                question_dict = {'question':question, 'input_summary':ia_obj.get_input_summary(request.cr, request.uid, question, current_filters, context=request.context), 'prepare_result':ia_obj.prepare_result(request.cr, request.uid, question, current_filters, context=request.context), 'graph_data': self.get_graph_data(question, current_filters)}
                 page_dict['question_ids'].append(question_dict)
             result['page_ids'].append(page_dict)
         return result
@@ -397,16 +397,16 @@ class WebsiteSurvey(http.Controller):
         '''Returns formatted data required by graph library on basis of filter'''
         # TODO refactor this terrible method and merge it with prepare_result_dict
         current_filters = current_filters if current_filters else []
-        survey_obj = request.registry['survey.survey']
+        ia_obj = request.registry['ia.ia']
         result = []
         if question.type == 'multiple_choice':
             result.append({'key': str(question.question),
-                           'values': survey_obj.prepare_result(request.cr, request.uid, question, current_filters, context=request.context)['answers']
+                           'values': ia_obj.prepare_result(request.cr, request.uid, question, current_filters, context=request.context)['answers']
                            })
         if question.type == 'simple_choice':
-            result = survey_obj.prepare_result(request.cr, request.uid, question, current_filters, context=request.context)['answers']
+            result = ia_obj.prepare_result(request.cr, request.uid, question, current_filters, context=request.context)['answers']
         if question.type == 'matrix':
-            data = survey_obj.prepare_result(request.cr, request.uid, question, current_filters, context=request.context)
+            data = ia_obj.prepare_result(request.cr, request.uid, question, current_filters, context=request.context)
             for answer in data['answers']:
                 values = []
                 for row in data['rows']:

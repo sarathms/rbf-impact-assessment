@@ -18,11 +18,11 @@
 
 $(document).ready(function () {
     'use strict';
-    console.debug("[survey] Survey Result JS is loading...");
+    console.debug("[ia] IA Result JS is loading...");
 
     //Script For Pagination
-    var survey_pagination = $('.pagination');
-    $.each(survey_pagination, function(index, pagination){
+    var ia_pagination = $('.pagination');
+    $.each(ia_pagination, function(index, pagination){
         var question_id = $(pagination).attr("data-question_id");
         var limit = $(pagination).attr("data-record_limit"); //Number of Record Par Page. If you want to change number of record per page, change record_limit in pagination template.
         $('#table_question_'+ question_id +' tbody tr:lt('+limit+')').removeClass('hidden');
@@ -77,7 +77,7 @@ $(document).ready(function () {
             .showLabels(false);
     }
 
-    //load chart to svg element chart:initialized chart, response:AJAX response, quistion_id:if of survey question, tick_limit:text length limit
+    //load chart to svg element chart:initialized chart, response:AJAX response, quistion_id:if of ia question, tick_limit:text length limit
     function load_chart(chart, response, question_id, tick_limit, graph_type){
         // Custom Tick fuction for replacing long text with '...'
         var customtick_function = function(d){
@@ -101,8 +101,8 @@ $(document).ready(function () {
         return chart;
     }
     //Script For Graph
-    var survey_graphs = $('.survey_graph');
-    $.each(survey_graphs, function(index, graph){
+    var ia_graphs = $('.ia_graph');
+    $.each(ia_graphs, function(index, graph){
         var question_id = $(graph).attr("data-question_id");
         var graph_type = $(graph).attr("data-graph_type");
         var graph_data = JSON.parse($(graph).attr("graph-data"));
@@ -127,12 +127,12 @@ $(document).ready(function () {
     });
 
     // Script for filter
-    $('td.survey_answer').hover(function(){
+    $('td.ia_answer').hover(function(){
         $(this).find('i.fa-filter').removeClass('invisible');
     }, function(){
         $(this).find('i.fa-filter').addClass('invisible');
     });
-    $('td.survey_answer i.fa-filter').click(function(){
+    $('td.ia_answer i.fa-filter').click(function(){
         var cell = $(this);
         var row_id = cell.attr('data-row_id') | 0;
         var answer_id = cell.attr('data-answer_id');
@@ -145,7 +145,7 @@ $(document).ready(function () {
     });
 
     // for clear all filters
-    $('.clear_survey_filter').click(function(){
+    $('.clear_ia_filter').click(function(){
         window.location.href = document.URL.substring(0,document.URL.indexOf("?"));
     });
     $('span.filter-all').click(function(){
@@ -158,7 +158,7 @@ $(document).ready(function () {
             $(this)[0].style.cursor = 'default';
         }
     });
-    // toggle finished/all surveys filter
+    // toggle finished/all ias filter
     $('span.filter-finished').click(function(){
         event.preventDefault();
         if(document.URL.indexOf("?") == -1){
@@ -173,5 +173,5 @@ $(document).ready(function () {
         }
     });
 
-    console.debug("[survey] Survey Result JS loaded!");
+    console.debug("[ia] IA Result JS loaded!");
 });

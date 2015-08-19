@@ -20,8 +20,8 @@
 ##############################################################################
 
 
-from . import test_survey
+from . import test_ia
 
 checks = [
-    test_survey
+    test_ia
 ]

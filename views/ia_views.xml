@@ -3,12 +3,12 @@
     <data>
 
         <!-- USER INPUTS -->
-        <record id="survey_user_input_search" model="ir.ui.view">
-            <field name="name">survey_user_input_search</field>
-            <field name="model">survey.user_input</field>
+        <record id="ia_user_input_search" model="ir.ui.view">
+            <field name="name">ia_user_input_search</field>
+            <field name="model">ia.user_input</field>
             <field name="arch" type="xml">
-                <search string="Search Survey">
-                    <field name="survey_id"/>
+                <search string="Search ia">
+                    <field name="ia_id"/>
                     <field name="email"/>
                     <field name="partner_id"/>
                     <filter string="Completed" domain="[('state', '=', 'done')]"/>
@@ -16,22 +16,22 @@
                     <filter string="New" domain="[('state', '=', 'new')]"/>
                     <filter string="Test" domain="[('state','=', 'test')]"/>
                     <group expand="0" string="Group By">
-                        <filter name="group_by_survey" string="Survey" domain="[]" context="{'group_by': 'survey_id'}"/>
+                        <filter name="group_by_ia" string="ia" domain="[]" context="{'group_by': 'ia_id'}"/>
                         <filter string="Email" domain="[]" context="{'group_by': 'email'}"/>
                         <filter string="Partner" domain="[]" context="{'group_by': ['partner_id']}"/>
                     </group>
                 </search>
             </field>
         </record>
-        <record model="ir.ui.view" id="survey_user_input_form">
-            <field name="name">survey_user_input_form</field>
-            <field name="model">survey.user_input</field>
+        <record model="ir.ui.view" id="ia_user_input_form">
+            <field name="name">ia_user_input_form</field>
+            <field name="model">ia.user_input</field>
             <field name="arch" type="xml">
-                <form string="Survey User inputs" create="false">
+                <form string="ia User inputs" create="false">
                     <header>
-                        <button name="action_survey_resent" string="Sent Invitation Again" type="object" class="oe_highlight" attrs="{'invisible': ['|', ('type','=','manually'), ('state', '=', 'done')]}"/>
+                        <button name="action_ia_resent" string="Sent Invitation Again" type="object" class="oe_highlight" attrs="{'invisible': ['|', ('type','=','manually'), ('state', '=', 'done')]}"/>
                         <button name="action_view_answers" states="done" string="Print These Answers" type="object"  class="oe_highlight" />
-                        <button name="action_survey_results" string="View Results" type="object" />
+                        <button name="action_ia_results" string="View Results" type="object" />
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
@@ -39,7 +39,7 @@
                         </div>
                         <group col="2">
                             <group>
-                                <field name="survey_id"/>
+                                <field name="ia_id"/>
                                 <field name="date_create"/>
                                 <field name="type"/>
                                 <field name="token" groups="base.group_no_one"/>
@@ -66,12 +66,12 @@
                 </form>
             </field>
         </record>
-        <record model="ir.ui.view" id="survey_user_input_tree">
-            <field name="name">survey_user_input_tree</field>
-            <field name="model">survey.user_input</field>
+        <record model="ir.ui.view" id="ia_user_input_tree">
+            <field name="name">ia_user_input_tree</field>
+            <field name="model">ia.user_input</field>
             <field name="arch" type="xml">
-                <tree string="Survey User inputs" colors="lightgrey:test_entry == True" create="false">
-                    <field name="survey_id"/>
+                <tree string="ia User inputs" colors="lightgrey:test_entry == True" create="false">
+                    <field name="ia_id"/>
                     <field name="date_create"/>
                     <field name="deadline"/>
                     <field name="partner_id"/>
@@ -84,40 +84,40 @@
             </field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_survey_user_input">
+        <record model="ir.actions.act_window" id="action_ia_user_input">
             <field name="name">Answers</field>
-            <field name="res_model">survey.user_input</field>
+            <field name="res_model">ia.user_input</field>
             <field name="view_mode">tree,form</field>
-            <field name="view_id" ref="survey_user_input_tree"></field>
-            <field name="search_view_id" ref="survey_user_input_search"/>
-            <field name="context">{'search_default_group_by_survey': True}</field>
+            <field name="view_id" ref="ia_user_input_tree"></field>
+            <field name="search_view_id" ref="ia_user_input_search"/>
+            <field name="context">{'search_default_group_by_ia': True}</field>
             <field name="help" type="html">
-                <p>Nobody has replied to your surveys yet.</p>
+                <p>Nobody has replied to your ias yet.</p>
             </field>
         </record>
-        <record id="action_selected_survey_user_input" model="ir.actions.act_window">
-            <field name="name">Survey User input</field>
-            <field name="res_model">survey.user_input</field>
+        <record id="action_selected_ia_user_input" model="ir.actions.act_window">
+            <field name="name">ia User input</field>
+            <field name="res_model">ia.user_input</field>
             <field name="view_mode">tree,form</field>
-            <field name="view_id" ref="survey_user_input_tree"></field>
-            <field name="search_view_id" ref="survey_user_input_search"/>
-            <field name="context">{'search_default_survey_id': active_id, 'default_survey_id': active_id}</field>
+            <field name="view_id" ref="ia_user_input_tree"></field>
+            <field name="search_view_id" ref="ia_user_input_search"/>
+            <field name="context">{'search_default_ia_id': active_id, 'default_ia_id': active_id}</field>
             <field name="help" type="html">
-                <p>Nobody has replied to your survey yet.</p>
+                <p>Nobody has replied to your ia yet.</p>
             </field>
         </record>
 
-        <!-- SURVEY -->
-        <record model="ir.ui.view" id="survey_form">
-            <field name="name">Form view for survey</field>
-            <field name="model">survey.survey</field>
+        <!-- ia -->
+        <record model="ir.ui.view" id="ia_form">
+            <field name="name">Form view for ia</field>
+            <field name="model">ia.ia</field>
             <field name="arch" type="xml">
-                <form string="Survey">
-                    <header groups="base.group_survey_manager">
-                        <button name="action_test_survey" string="Test Survey" type="object"/>
-                        <button name="action_print_survey" string="Print Survey" type="object"/>
-                        <button name="action_send_survey" string="Share and invite by email" type="object" class="oe_highlight" />
-                        <button name="action_result_survey" string="View results" type="object" class="oe_highlight" />
+                <form string="ia">
+                    <header groups="base.group_ia_manager">
+                        <button name="action_test_ia" string="Test ia" type="object"/>
+                        <button name="action_print_ia" string="Print ia" type="object"/>
+                        <button name="action_send_ia" string="Share and invite by email" type="object" class="oe_highlight" />
+                        <button name="action_result_ia" string="View results" type="object" class="oe_highlight" />
                         <field name="stage_id" widget="statusbar" clickable="True" />
                     </header>
                     <sheet>
@@ -127,7 +127,7 @@
                         </div>
                         <notebook>
                             <page string="Edit Pages and Questions">
-                                <field name="page_ids" mode="tree" context="{'default_survey_id': active_id}" nolabel="1">
+                                <field name="page_ids" mode="tree" context="{'default_ia_id': active_id}" nolabel="1">
                                     <tree>
                                         <field name="sequence" widget="handle"/>
                                         <field name="title"/>
@@ -152,30 +152,30 @@
                 </form>
             </field>
         </record>
-        <record model="ir.ui.view" id= "survey_tree">
-            <field name="name">Tree view for survey</field>
-            <field name="model">survey.survey</field>
+        <record model="ir.ui.view" id= "ia_tree">
+            <field name="name">Tree view for ia</field>
+            <field name="model">ia.ia</field>
             <field name="arch" type="xml">
-                <tree string="Survey">
+                <tree string="ia">
                     <field name="title" />
                     <field name="stage_id" />
-                    <field name="tot_sent_survey" string="Invitations sent" />
-                    <field name="tot_start_survey" string="Started" />
-                    <field name="tot_comp_survey" string="Completed" />
+                    <field name="tot_sent_ia" string="Invitations sent" />
+                    <field name="tot_start_ia" string="Started" />
+                    <field name="tot_comp_ia" string="Completed" />
                 </tree>
             </field>
         </record>
-        <record model="ir.ui.view" id="survey_kanban">
-            <field name="name">Kanban view for survey</field>
-            <field name="model">survey.survey</field>
+        <record model="ir.ui.view" id="ia_kanban">
+            <field name="name">Kanban view for ia</field>
+            <field name="model">ia.ia</field>
             <field name="arch" type="xml">
                 <kanban default_group_by="stage_id">
                     <field name="stage_id" />
                     <field name="designed" />
                     <field name="title" />
-                    <field name="tot_sent_survey" />
-                    <field name="tot_start_survey" />
-                    <field name="tot_comp_survey" />
+                    <field name="tot_sent_ia" />
+                    <field name="tot_start_ia" />
+                    <field name="tot_comp_ia" />
                     <field name="color" />
                     <field name="auth_required" />
                     <field name="public_url" />
@@ -184,7 +184,7 @@
                             <div class="oe_dropdown_toggle oe_dropdown_kanban" t-if="widget.view.is_action_enabled('edit')">
                                 <span class="oe_e">í</span> <!-- icon for dropdown menu -->
                                 <ul class="oe_dropdown_menu">
-                                    <li><a type="edit">Survey Options</a></li>
+                                    <li><a type="edit">ia Options</a></li>
                                     <li t-if="widget.view.is_action_enabled('delete')"><a type="delete">Delete!</a></li>
                                     <li><ul class="oe_kanban_colorpicker" data-field="color"/></li>
                                 </ul>
@@ -193,19 +193,19 @@
                                 <h4 class="oe_center"><field name="title" /></h4>
                                 <div><ul>
                                     <li>
-                                        <a name="action_test_survey" type="object">Design</a>
+                                        <a name="action_test_ia" type="object">Design</a>
                                     </li>
                                     <li>
-                                        <t t-if="record.designed.raw_value"><a type="object" name="action_test_survey">Test</a></t>
+                                        <t t-if="record.designed.raw_value"><a type="object" name="action_test_ia">Test</a></t>
                                         <t t-if="! record.designed.raw_value"><a style="color: #aaaaaa;">Test</a></t>
                                     </li>
                                     <li>
-                                        <t t-if="record.designed.raw_value"><a type="object" name="action_send_survey">Share &amp;amp; Invite</a></t>
+                                        <t t-if="record.designed.raw_value"><a type="object" name="action_send_ia">Share &amp;amp; Invite</a></t>
                                         <t t-if="! record.designed.raw_value"><a style="color: #aaaaaa;">Share &amp;amp; Invite</a></t>
                                     </li>
                                     <li>
-                                        <t t-if="record.tot_start_survey.raw_value &gt; 0"><a name="action_result_survey" type="object">Analyze Answers</a> <span t-if="record.tot_start_survey.raw_value &gt; 0">(<field name="tot_start_survey" />)</span></t>
-                                        <t t-if="record.tot_start_survey.raw_value &lt;= 0"><a style="color: #aaaaaa;">Analyze Answers</a></t>
+                                        <t t-if="record.tot_start_ia.raw_value &gt; 0"><a name="action_result_ia" type="object">Analyze Answers</a> <span t-if="record.tot_start_ia.raw_value &gt; 0">(<field name="tot_start_ia" />)</span></t>
+                                        <t t-if="record.tot_start_ia.raw_value &lt;= 0"><a style="color: #aaaaaa;">Analyze Answers</a></t>
                                     </li>
                                 </ul></div>
                             </div>
@@ -215,26 +215,26 @@
             </field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_survey_form">
-            <field name="name">Surveys</field>
-            <field name="res_model">survey.survey</field>
+        <record model="ir.actions.act_window" id="action_ia_form">
+            <field name="name">ias</field>
+            <field name="res_model">ia.ia</field>
             <field name="view_type">form</field>
             <field name="view_mode">kanban,tree,form</field>
             <field name="help" type="html">
-                <p class="oe_view_nocontent_create">Click to add a survey.</p>
-                <p>You can create surveys for different purposes: customer opinion, services feedback, recruitment interviews, employee's periodical evaluations, marketing campaigns, etc.</p>
-                <p>Design easily your survey, send invitations to answer by email and analyse answers.</p>
+                <p class="oe_view_nocontent_create">Click to add a ia.</p>
+                <p>You can create ias for different purposes: customer opinion, services feedback, recruitment interviews, employee's periodical evaluations, marketing campaigns, etc.</p>
+                <p>Design easily your ia, send invitations to answer by email and analyse answers.</p>
             </field>
         </record>
-        <act_window context="{'search_default_survey_id': [active_id], 'default_survey_id': active_id}" id="act_survey_pages" name="Pages" res_model="survey.page" src_model="survey.survey"/>
-        <act_window context="{'search_default_survey_id': [active_id], 'default_survey_id': active_id}" id="act_survey_question" name="Questions" res_model="survey.question" src_model="survey.survey"/>
+        <act_window context="{'search_default_ia_id': [active_id], 'default_ia_id': active_id}" id="act_ia_pages" name="Pages" res_model="ia.page" src_model="ia.ia"/>
+        <act_window context="{'search_default_ia_id': [active_id], 'default_ia_id': active_id}" id="act_ia_question" name="Questions" res_model="ia.question" src_model="ia.ia"/>
 
         <!-- PAGES -->
-        <record model="ir.ui.view" id="survey_page_form">
-            <field name="name">Form view for survey page</field>
-            <field name="model">survey.page</field>
+        <record model="ir.ui.view" id="ia_page_form">
+            <field name="name">Form view for ia page</field>
+            <field name="model">ia.page</field>
             <field name="arch" type="xml">
-                <form string="Survey Page" create="false">
+                <form string="ia Page" create="false">
                     <sheet>
                         <div class="oe_title" style="width: 100%;">
                             <label for="title" class="oe_edit_only"/>
@@ -252,48 +252,48 @@
                 </form>
             </field>
         </record>
-        <record model="ir.ui.view" id="survey_page_tree">
-            <field name="name">Tree view for survey page</field>
-            <field name="model">survey.page</field>
+        <record model="ir.ui.view" id="ia_page_tree">
+            <field name="name">Tree view for ia page</field>
+            <field name="model">ia.page</field>
             <field name="arch" type="xml">
-                <tree string="Survey Page" create="false">
+                <tree string="ia Page" create="false">
                     <field name="sequence" widget="handle"/>
                     <field name="title"/>
-                    <field name="survey_id"/>
+                    <field name="ia_id"/>
                     <field name="question_ids" string="#Questions"/>
                 </tree>
             </field>
         </record>
-        <record model="ir.ui.view" id="survey_page_search" >
-            <field name="name">Search view for survey page</field>
-            <field name="model">survey.page</field>
+        <record model="ir.ui.view" id="ia_page_search" >
+            <field name="name">Search view for ia page</field>
+            <field name="model">ia.page</field>
             <field name="arch" type="xml">
                 <search string="Search Page">
                     <field name="title" string="Page"/>
-                    <field name="survey_id" string="Survey"/>
+                    <field name="ia_id" string="ia"/>
                     <group expand="0" string="Group By">
-                        <filter name="group_by_survey" string="Survey" domain="[]"  context="{'group_by':'survey_id'}"/>
+                        <filter name="group_by_ia" string="ia" domain="[]"  context="{'group_by':'ia_id'}"/>
                     </group>
                 </search>
             </field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_survey_page_form">
+        <record model="ir.actions.act_window" id="action_ia_page_form">
             <field name="name">Pages</field>
-            <field name="res_model">survey.page</field>
+            <field name="res_model">ia.page</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="search_view_id" ref="survey_page_search"/>
-            <field name="context">{'search_default_group_by_survey': True}</field>
+            <field name="search_view_id" ref="ia_page_search"/>
+            <field name="context">{'search_default_group_by_ia': True}</field>
         </record>
-        <act_window context="{'search_default_page_id': active_id, 'default_page_id': active_id}" id="act_survey_page_question" name="Questions" res_model="survey.question" src_model="survey.page"/>
+        <act_window context="{'search_default_page_id': active_id, 'default_page_id': active_id}" id="act_ia_page_question" name="Questions" res_model="ia.question" src_model="ia.page"/>
 
         <!-- QUESTIONS -->
-        <record model="ir.ui.view" id="survey_question_form">
-            <field name="name">Form view for survey question</field>
-            <field name="model">survey.question</field>
+        <record model="ir.ui.view" id="ia_question_form">
+            <field name="name">Form view for ia question</field>
+            <field name="model">ia.question</field>
             <field name="arch" type="xml">
-                <form string="Survey Question" create="false">
+                <form string="ia Question" create="false">
                     <sheet>
                         <div class="oe_title" style="width: 100%;">
                             <label for="question" string="Question name" class="oe_edit_only"/>
@@ -358,26 +358,26 @@
                 </form>
             </field>
         </record>
-        <record model="ir.ui.view" id="survey_question_tree">
-            <field name="name">Tree view for survey question</field>
-            <field name="model">survey.question</field>
+        <record model="ir.ui.view" id="ia_question_tree">
+            <field name="name">Tree view for ia question</field>
+            <field name="model">ia.question</field>
             <field name="arch" type="xml">
-                <tree string="Survey Question" create="false">
+                <tree string="ia Question" create="false">
                     <field name="sequence" widget="handle"/>
                     <field name="question"/>
                     <field name="page_id"/>
-                    <field name="survey_id"/>
+                    <field name="ia_id"/>
                     <field name="type"/>
                 </tree>
             </field>
         </record>
-        <record model="ir.ui.view" id="survey_question_search">
-            <field name="name">Search view for survey question</field>
-            <field name="model">survey.question</field>
+        <record model="ir.ui.view" id="ia_question_search">
+            <field name="name">Search view for ia question</field>
+            <field name="model">ia.question</field>
             <field name="arch" type="xml">
                 <search string="Search Question">
                     <field name="question" string="Question"/>
-                    <field name="survey_id" string="Survey"/>
+                    <field name="ia_id" string="ia"/>
                     <field name="page_id" string="Page"/>
                     <field name="type" string="Type"/>
                     <group expand="1" string="Group By">
@@ -388,21 +388,21 @@
             </field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_survey_question_form">
+        <record model="ir.actions.act_window" id="action_ia_question_form">
             <field name="name">Questions</field>
-            <field name="res_model">survey.question</field>
+            <field name="res_model">ia.question</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="search_view_id" ref="survey_question_search"/>
+            <field name="search_view_id" ref="ia_question_search"/>
             <field name="context">{'search_default_group_by_page': True}</field>
         </record>
 
         <!-- LABELS -->
-        <record model="ir.ui.view" id="survey_label_tree">
-            <field name="name">survey_label_tree</field>
-            <field name="model">survey.label</field>
+        <record model="ir.ui.view" id="ia_label_tree">
+            <field name="name">ia_label_tree</field>
+            <field name="model">ia.label</field>
             <field name="arch" type="xml">
-                <tree string="Survey Label" create="false">
+                <tree string="ia Label" create="false">
                     <field name="sequence" widget="handle"/>
                     <field name="question_id"/>
                     <field name="question_id_2"/>
@@ -411,9 +411,9 @@
                 </tree>
             </field>
         </record>
-        <record id="survey_label_search" model="ir.ui.view">
-            <field name="name">survey_label_search</field>
-            <field name="model">survey.label</field>
+        <record id="ia_label_search" model="ir.ui.view">
+            <field name="name">ia_label_search</field>
+            <field name="model">ia.label</field>
             <field name="arch" type="xml">
                 <search string="Search Label">
                     <field name="question_id" string="Question"/>
@@ -422,20 +422,20 @@
             </field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_survey_label_form">
+        <record model="ir.actions.act_window" id="action_ia_label_form">
             <field name="name">Labels</field>
-            <field name="res_model">survey.label</field>
+            <field name="res_model">ia.label</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="search_view_id" ref="survey_label_search"/>
+            <field name="search_view_id" ref="ia_label_search"/>
             <field name="context">{'search_default_group_by_question': True}</field>
         </record>
 
         <!-- USER INPUT LINES
             .. note:: these views are useful mainly for technical users/administrators -->
-        <record model="ir.ui.view" id="survey_user_input_line_form">
-            <field name="name">survey_user_input_line_form</field>
-            <field name="model">survey.user_input_line</field>
+        <record model="ir.ui.view" id="ia_user_input_line_form">
+            <field name="name">ia_user_input_line_form</field>
+            <field name="model">ia.user_input_line</field>
             <field name="arch" type="xml">
                 <form string="User input line details" create="false">
                     <sheet>
@@ -458,12 +458,12 @@
                 </form>
             </field>
         </record>
-        <record model="ir.ui.view" id="survey_response_line_tree">
-            <field name="name">survey_response_line_tree</field>
-            <field name="model">survey.user_input_line</field>
+        <record model="ir.ui.view" id="ia_response_line_tree">
+            <field name="name">ia_response_line_tree</field>
+            <field name="model">ia.user_input_line</field>
             <field name="arch" type="xml">
-                <tree string="Survey Answer Line" create="false">
-                    <field name="survey_id"/>
+                <tree string="ia Answer Line" create="false">
+                    <field name="ia_id"/>
                     <field name="user_input_id"/>
                     <field name="page_id"/>
                     <field name="question_id"/>
@@ -474,33 +474,33 @@
                 </tree>
             </field>
         </record>
-        <record id="survey_response_line_search" model="ir.ui.view">
-            <field name="name">survey_response_line_search</field>
-            <field name="model">survey.user_input_line</field>
+        <record id="ia_response_line_search" model="ir.ui.view">
+            <field name="name">ia_response_line_search</field>
+            <field name="model">ia.user_input_line</field>
             <field name="arch" type="xml">
                 <search string="Search User input lines">
                     <field name="user_input_id"/>
-                    <field name="survey_id"/>
+                    <field name="ia_id"/>
                     <group expand="1" string="Group By">
-                        <filter name="group_by_survey" string="Survey" domain="[]"  context="{'group_by':'survey_id'}"/>
+                        <filter name="group_by_ia" string="ia" domain="[]"  context="{'group_by':'ia_id'}"/>
                         <filter name="group_by_user_input" string="User Input" domain="[]"  context="{'group_by':'user_input_id'}"/>
                     </group>
                 </search>
             </field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_survey_user_input_line">
-            <field name="name">Survey User Input lines</field>
-            <field name="res_model">survey.user_input_line</field>
+        <record model="ir.actions.act_window" id="action_ia_user_input_line">
+            <field name="name">ia User Input lines</field>
+            <field name="res_model">ia.user_input_line</field>
             <field name="view_mode">tree,form</field>
-            <field name="search_view_id" ref="survey_response_line_search"/>
-            <field name="context">{'search_default_group_by_survey': True, 'search_default_group_by_user_input': True}</field>
+            <field name="search_view_id" ref="ia_response_line_search"/>
+            <field name="context">{'search_default_group_by_ia': True, 'search_default_group_by_user_input': True}</field>
         </record>
 
 
-        <record model="ir.ui.view" id="survey_stage_form">
-            <field name="name">Form view for survey stage</field>
-            <field name="model">survey.stage</field>
+        <record model="ir.ui.view" id="ia_stage_form">
+            <field name="name">Form view for ia stage</field>
+            <field name="model">ia.stage</field>
             <field name="arch" type="xml">
                 <form string="Stage">
                     <group col='4' colspan='4'>
@@ -516,18 +516,18 @@
         <!-- MENU ELEMENTS -->
 
         <!-- Left menu categories-->
-        <menuitem name="Surveys" id="menu_surveys" parent="base.marketing_menu" sequence="25" groups="base.group_survey_user"/>
+        <menuitem name="ias" id="menu_ias" parent="base.marketing_menu" sequence="25" groups="base.group_ia_user"/>
         <menuitem name="Configuration" id="base.menu_marketing_config_root" parent="base.marketing_menu" sequence="30" />
 
-        <!-- Left menu elements: Survey -->
-        <menuitem name="Surveys" id="menu_survey_form" action="action_survey_form" parent="menu_surveys" sequence="1"/>
-        <menuitem name="Answers" id="menu_survey_type_form1" action="action_survey_user_input" parent="menu_surveys" sequence="1"/>
+        <!-- Left menu elements: ia -->
+        <menuitem name="ias" id="menu_ia_form" action="action_ia_form" parent="menu_ias" sequence="1"/>
+        <menuitem name="Answers" id="menu_ia_type_form1" action="action_ia_user_input" parent="menu_ias" sequence="1"/>
 
         <!-- Left menu elements: Technical Configuration -->
-        <menuitem name="Surveys" id="menu_surveys_configuration" parent="base.menu_marketing_config_root" groups="base.group_no_one" sequence="25" />
-        <menuitem name="Pages" id="menu_survey_page_form1" action="action_survey_page_form" parent="menu_surveys_configuration" sequence="1"/>
-        <menuitem name="Questions" id="menu_survey_question_form1" action="action_survey_question_form" parent="menu_surveys_configuration" sequence="2"/>
-        <menuitem name="Labels" id="menu_survey_label_form1" action="action_survey_label_form" parent="menu_surveys_configuration" sequence="3"/>
-        <menuitem name="User Input Lines" id="menu_survey_response_line_form" action="action_survey_user_input_line" parent="menu_surveys_configuration" sequence="4"/>
+        <menuitem name="ias" id="menu_ias_configuration" parent="base.menu_marketing_config_root" groups="base.group_no_one" sequence="25" />
+        <menuitem name="Pages" id="menu_ia_page_form1" action="action_ia_page_form" parent="menu_ias_configuration" sequence="1"/>
+        <menuitem name="Questions" id="menu_ia_question_form1" action="action_ia_question_form" parent="menu_ias_configuration" sequence="2"/>
+        <menuitem name="Labels" id="menu_ia_label_form1" action="action_ia_label_form" parent="menu_ias_configuration" sequence="3"/>
+        <menuitem name="User Input Lines" id="menu_ia_response_line_form" action="action_ia_user_input_line" parent="menu_ias_configuration" sequence="4"/>
     </data>
 </openerp>

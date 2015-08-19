@@ -17,16 +17,16 @@
  */
 
 /*
- * This file is intended to add interactivity to survey forms rendered by
+ * This file is intended to add interactivity to ia forms rendered by
  * the website engine.
  */
 
 $(document).ready(function () {
     'use strict';
 
-    console.debug("[survey] Custom JS for survey is loading...");
+    console.debug("[ia] Custom JS for ia is loading...");
 
-    var the_form = $('.js_surveyform');
+    var the_form = $('.js_iaform');
     var prefill_controller = the_form.attr("data-prefill");
     var validate_controller = the_form.attr("data-validate");
     var submit_controller = the_form.attr("data-submit");
@@ -36,7 +36,7 @@ $(document).ready(function () {
 
     // Printing mode: will disable all the controls in the form
     if (_.isUndefined(submit_controller)) {
-        $('.js_surveyform :input').prop('disabled', true);
+        $('.js_iaform :input').prop('disabled', true);
         print_mode = true;
     }
 
@@ -49,23 +49,23 @@ $(document).ready(function () {
     $('.js_comments>input[type="text"]').focusin(function(){
         $(this).prev().find('>input').attr("checked","checked");
     });
-    $('.js_radio input[type="radio"][data-oe-survey-otherr!="1"]').click(function(){
+    $('.js_radio input[type="radio"][data-oe-ia-otherr!="1"]').click(function(){
         $(this).closest('.js_radio').find('.js_comments>input[type="text"]').val("");
     });
     $('.js_comments input[type="radio"]').click(function(){
-        $(this).closest('.js_comments').find('>input[data-oe-survey-othert="1"]').focus();
+        $(this).closest('.js_comments').find('>input[data-oe-ia-othert="1"]').focus();
     });
     // Custom code for right behavior of dropdown menu with comments
-    $('.js_drop input[data-oe-survey-othert="1"]').hide();
+    $('.js_drop input[data-oe-ia-othert="1"]').hide();
     $('.js_drop select').change(function(){
         var other_val = $(this).find('.js_other_option').val();
         if($(this).val() === other_val){
             $(this).parent().removeClass('col-md-12').addClass('col-md-6');
-            $(this).closest('.js_drop').find('input[data-oe-survey-othert="1"]').show().focus();
+            $(this).closest('.js_drop').find('input[data-oe-ia-othert="1"]').show().focus();
         }
         else{
             $(this).parent().removeClass('col-md-6').addClass('col-md-12');
-            $(this).closest('.js_drop').find('input[data-oe-survey-othert="1"]').val("").hide();
+            $(this).closest('.js_drop').find('input[data-oe-ia-othert="1"]').val("").hide();
         }
     });
     // Custom code for right behavior of checkboxes with comments box
@@ -90,7 +90,7 @@ $(document).ready(function () {
                 });
             })
             .fail(function(){
-                console.warn("[survey] Unable to load prefill data");
+                console.warn("[ia] Unable to load prefill data");
             });
         return prefill_def;
     }
@@ -104,13 +104,13 @@ $(document).ready(function () {
                 });
             })
             .fail(function(){
-                console.warn("[survey] Unable to load score data");
+                console.warn("[ia] Unable to load score data");
             });
         return score_def;
     }
 
     // Parameters for form submission
-    $('.js_surveyform').ajaxForm({
+    $('.js_iaform').ajaxForm({
         url: submit_controller,
         type: 'POST',                       // submission type
         dataType: 'json',                   // answer expected type
@@ -142,7 +142,7 @@ $(document).ready(function () {
     // // Handles the event when a question is focused out
     // $('.js_question-wrapper').focusout(
     //     function(){
-    //         console.debug("[survey] Focus lost on question " + $(this).attr("id"));
+    //         console.debug("[ia] Focus lost on question " + $(this).attr("id"));
     // });
 
     // Launch prefilling
@@ -151,5 +151,5 @@ $(document).ready(function () {
         display_scores();
     }
 
-    console.debug("[survey] Custom JS for survey loaded!");
+    console.debug("[ia] Custom JS for ia loaded!");
 });

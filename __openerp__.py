@@ -20,37 +20,37 @@
 ##############################################################################
 
 {
-    'name': 'Survey',
+    'name': 'ia',
     'version': '2.0',
     'category': 'Marketing',
     'description': """
-Create beautiful web surveys and visualize answers
+Create beautiful web ias and visualize answers
 ==================================================
 
 It depends on the answers or reviews of some questions by different users. A
-survey may have multiple pages. Each page may contain multiple questions and
+ia may have multiple pages. Each page may contain multiple questions and
 each question may have multiple answers. Different users may give different
-answers of question and according to that survey is done. Partners are also
-sent mails with personal token for the invitation of the survey.
+answers of question and according to that ia is done. Partners are also
+sent mails with personal token for the invitation of the ia.
     """,
-    'summary': 'Create surveys, collect answers and print statistics',
+    'summary': 'Create ias, collect answers and print statistics',
     'author': 'OpenERP SA',
-    'website': 'https://www.odoo.com/page/survey',
+    'website': 'https://www.odoo.com/page/ia',
     'depends': ['email_template', 'mail', 'website', 'marketing'],
     'data': [
-        'security/survey_security.xml',
+        'security/ia_security.xml',
         'security/ir.model.access.csv',
-        'views/survey_views.xml',
-        'views/survey_templates.xml',
-        'views/survey_result.xml',
-        'wizard/survey_email_compose_message.xml',
-        'data/survey_stages.xml',
-        'data/survey_cron.xml'
+        'views/ia_views.xml',
+        'views/ia_templates.xml',
+        'views/ia_result.xml',
+        'wizard/ia_email_compose_message.xml',
+        'data/ia_stages.xml',
+        'data/ia_cron.xml'
     ],
-    'demo': ['data/survey_demo_user.xml',
-             'data/survey_demo_feedback.xml',
-             'data/survey.user_input.csv',
-             'data/survey.user_input_line.csv'],
+    'demo': ['data/ia_demo_user.xml',
+             'data/ia_demo_feedback.xml',
+             'data/ia.user_input.csv',
+             'data/ia.user_input_line.csv'],
     'installable': True,
     'auto_install': False,
     'application': True,

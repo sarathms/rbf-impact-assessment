@@ -19,6 +19,6 @@
 #
 ##############################################################################
 
-import survey
+import ia
 import controllers
 import wizard

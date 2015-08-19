@@ -31,28 +31,28 @@ import urlparse
 emails_split = re.compile(r"[;,\n\r]+")
 
 
-class survey_mail_compose_message(osv.TransientModel):
-    _name = 'survey.mail.compose.message'
+class ia_mail_compose_message(osv.TransientModel):
+    _name = 'ia.mail.compose.message'
     _inherit = 'mail.compose.message'
-    _description = 'Email composition wizard for Survey'
+    _description = 'Email composition wizard for ia'
     _log_access = True
 
     def _get_public_url(self, cr, uid, ids, name, arg, context=None):
         res = dict((id, 0) for id in ids)
-        survey_obj = self.pool.get('survey.survey')
+        ia_obj = self.pool.get('ia.ia')
         for wizard in self.browse(cr, uid, ids, context=context):
-            res[wizard.id] = survey_obj.browse(cr, uid, wizard.survey_id, context=context).public_url
+            res[wizard.id] = ia_obj.browse(cr, uid, wizard.ia_id, context=context).public_url
         return res
 
     def _get_public_url_html(self, cr, uid, ids, name, arg, context=None):
         """ Compute if the message is unread by the current user """
         urls = self._get_public_url(cr, uid, ids, name, arg, context=context)
         for key, url in urls.items():
-            urls[key] = '<a href="%s">%s</a>' % (url, _("Click here to start survey"))
+            urls[key] = '<a href="%s">%s</a>' % (url, _("Click here to start ia"))
         return urls
 
     _columns = {
-        'survey_id': fields.many2one('survey.survey', 'Survey', required=True),
+        'ia_id': fields.many2one('ia.ia', 'ia', required=True),
         'public': fields.selection([('public_link', 'Share the public web link to your audience.'),
                                     ('email_public_link', 'Send by email the public web link to your audience.'),
                                     ('email_private', 'Send private invitation to your audience (only one response per recipient and per invitation).')],
@@ -60,22 +60,22 @@ class survey_mail_compose_message(osv.TransientModel):
         'public_url': fields.function(_get_public_url, string="Public url", type="char"),
         'public_url_html': fields.function(_get_public_url_html, string="Public HTML web link", type="char"),
         'partner_ids': fields.many2many('res.partner',
-            'survey_mail_compose_message_res_partner_rel',
+            'ia_mail_compose_message_res_partner_rel',
             'wizard_id', 'partner_id', 'Existing contacts'),
         'attachment_ids': fields.many2many('ir.attachment',
-            'survey_mail_compose_message_ir_attachments_rel',
+            'ia_mail_compose_message_ir_attachments_rel',
             'wizard_id', 'attachment_id', 'Attachments'),
         'multi_email': fields.text(string='List of emails', help="This list of emails of recipients will not converted in contacts. Emails separated by commas, semicolons or newline."),
-        'date_deadline': fields.date(string="Deadline to which the invitation to respond is valid", help="Deadline to which the invitation to respond for this survey is valid. If the field is empty, the invitation is still valid."),
+        'date_deadline': fields.date(string="Deadline to which the invitation to respond is valid", help="Deadline to which the invitation to respond for this ia is valid. If the field is empty, the invitation is still valid."),
     }
 
     _defaults = {
         'public': 'public_link',
-        'survey_id': lambda self, cr, uid, ctx={}: ctx.get('model') == 'survey.survey' and ctx.get('res_id') or None
+        'ia_id': lambda self, cr, uid, ctx={}: ctx.get('model') == 'ia.ia' and ctx.get('res_id') or None
     }
 
     def default_get(self, cr, uid, fields, context=None):
-        res = super(survey_mail_compose_message, self).default_get(cr, uid, fields, context=context)
+        res = super(ia_mail_compose_message, self).default_get(cr, uid, fields, context=context)
         if context.get('active_model') == 'res.partner' and context.get('active_ids'):
             res.update({'partner_ids': context.get('active_ids')})
         return res
@@ -98,18 +98,18 @@ class survey_mail_compose_message(osv.TransientModel):
         values = {'multi_email': '\n'.join(emails_checked)}
         return {'value': values}
 
-    def onchange_survey_id(self, cr, uid, ids, survey_id, context=None):
+    def onchange_ia_id(self, cr, uid, ids, ia_id, context=None):
         """ Compute if the message is unread by the current user. """
-        if survey_id:
-            survey = self.pool.get('survey.survey').browse(cr, uid, survey_id, context=context)
+        if ia_id:
+            ia = self.pool.get('ia.ia').browse(cr, uid, ia_id, context=context)
             return {
                 'value': {
-                    'subject': survey.title,
-                    'public_url': survey.public_url,
-                    'public_url_html': '<a href="%s">%s</a>' % (survey.public_url, _("Click here to take survey")),
+                    'subject': ia.title,
+                    'public_url': ia.public_url,
+                    'public_url_html': '<a href="%s">%s</a>' % (ia.public_url, _("Click here to take ia")),
                 }}
         else:
-            txt = _("Please select a survey")
+            txt = _("Please select a ia")
             return {
                 'value': {
                     'public_url': txt,
@@ -126,7 +126,7 @@ class survey_mail_compose_message(osv.TransientModel):
         if context is None:
             context = {}
 
-        survey_response_obj = self.pool.get('survey.user_input')
+        ia_response_obj = self.pool.get('ia.user_input')
         partner_obj = self.pool.get('res.partner')
         mail_mail_obj = self.pool.get('mail.mail')
         try:
@@ -137,7 +137,7 @@ class survey_mail_compose_message(osv.TransientModel):
         def create_response_and_send_mail(wizard, token, partner_id, email):
             """ Create one mail by recipients and replace __URL__ by link with identification token """
             #set url
-            url = wizard.survey_id.public_url
+            url = wizard.ia_id.public_url
 
             url = urlparse.urlparse(url).path[1:]  # dirty hack to avoid incorrect urls
 
@@ -162,17 +162,17 @@ class survey_mail_compose_message(osv.TransientModel):
             mail_mail_obj.send(cr, uid, [mail_id], context=context)
 
         def create_token(wizard, partner_id, email):
-            if context.get("survey_resent_token"):
-                response_ids = survey_response_obj.search(cr, uid, [('survey_id', '=', wizard.survey_id.id), ('state', 'in', ['new', 'skip']), '|', ('partner_id', '=', partner_id), ('email', '=', email)], context=context)
+            if context.get("ia_resent_token"):
+                response_ids = ia_response_obj.search(cr, uid, [('ia_id', '=', wizard.ia_id.id), ('state', 'in', ['new', 'skip']), '|', ('partner_id', '=', partner_id), ('email', '=', email)], context=context)
                 if response_ids:
-                    return survey_response_obj.read(cr, uid, response_ids, ['token'], context=context)[0]['token']
+                    return ia_response_obj.read(cr, uid, response_ids, ['token'], context=context)[0]['token']
             if wizard.public != 'email_private':
                 return None
             else:
                 token = uuid.uuid4().__str__()
                 # create response with token
-                survey_response_obj.create(cr, uid, {
-                    'survey_id': wizard.survey_id.id,
+                ia_response_obj.create(cr, uid, {
+                    'ia_id': wizard.ia_id.id,
                     'deadline': wizard.date_deadline,
                     'date_create': datetime.now(),
                     'type': 'link',
@@ -186,7 +186,7 @@ class survey_mail_compose_message(osv.TransientModel):
             # check if __URL__ is in the text
             if wizard.body.find("__URL__") < 0:
                 raise osv.except_osv(_('Warning!'), _("The content of the text don't contain '__URL__'. \
-                    __URL__ is automaticaly converted into the special url of the survey."))
+                    __URL__ is automaticaly converted into the special url of the ia."))
 
             if not wizard.multi_email and not wizard.partner_ids and (context.get('default_partner_ids') or context.get('default_multi_email')):
                 wizard.multi_email = context.get('default_multi_email')

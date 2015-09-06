@@ -64,7 +64,7 @@ class ia(osv.Model):
     '''
 
     _name = 'ia.ia'
-    _description = 'ia'
+    _description = 'Impact Assessment'
     _rec_name = 'title'
     _inherit = ['mail.thread', 'ir.needaction_mixin']
 

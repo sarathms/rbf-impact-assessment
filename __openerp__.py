@@ -20,9 +20,9 @@
 ##############################################################################
 
 {
-    'name': 'ia',
-    'version': '2.0',
-    'category': 'Marketing',
+    'name': 'Impact Assessment',
+    'version': '0.1',
+    'category': 'Internal',
     'description': """
 Create beautiful web ias and visualize answers
 ==================================================
@@ -33,10 +33,10 @@ each question may have multiple answers. Different users may give different
 answers of question and according to that ia is done. Partners are also
 sent mails with personal token for the invitation of the ia.
     """,
-    'summary': 'Create ias, collect answers and print statistics',
-    'author': 'OpenERP SA',
-    'website': 'https://www.odoo.com/page/ia',
-    'depends': ['email_template', 'mail', 'website', 'marketing'],
+    'summary': 'Create Impact Assessment forms, collect answers and print statistics',
+    'author': 'Sarath M S',
+    'website': 'http://reapbenefit.org',
+    'depends': ['email_template', 'mail', 'website'],
     'data': [
         'security/ia_security.xml',
         'security/ir.model.access.csv',
@@ -47,10 +47,10 @@ sent mails with personal token for the invitation of the ia.
         'data/ia_stages.xml',
         'data/ia_cron.xml'
     ],
-    'demo': ['data/ia_demo_user.xml',
-             'data/ia_demo_feedback.xml',
-             'data/ia.user_input.csv',
-             'data/ia.user_input_line.csv'],
+    # 'demo': ['data/ia_demo_user.xml',
+    #          'data/ia_demo_feedback.xml',
+    #          'data/ia.user_input.csv',
+    #          'data/ia.user_input_line.csv'],
     'installable': True,
     'auto_install': False,
     'application': True,

@@ -114,8 +114,8 @@
             <field name="arch" type="xml">
                 <form string="ia">
                     <header groups="base.group_ia_manager">
-                        <button name="action_test_ia" string="Test ia" type="object"/>
-                        <button name="action_print_ia" string="Print ia" type="object"/>
+                        <button name="action_test_ia" string="Test Form" type="object"/>
+                        <button name="action_print_ia" string="Print Form" type="object"/>
                         <button name="action_send_ia" string="Share and invite by email" type="object" class="oe_highlight" />
                         <button name="action_result_ia" string="View results" type="object" class="oe_highlight" />
                         <field name="stage_id" widget="statusbar" clickable="True" />
@@ -216,12 +216,12 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_ia_form">
-            <field name="name">ias</field>
+            <field name="name">Impact Assessment Forms</field>
             <field name="res_model">ia.ia</field>
             <field name="view_type">form</field>
             <field name="view_mode">kanban,tree,form</field>
             <field name="help" type="html">
-                <p class="oe_view_nocontent_create">Click to add a ia.</p>
+                <p class="oe_view_nocontent_create">Click to add a Form.</p>
                 <p>You can create ias for different purposes: customer opinion, services feedback, recruitment interviews, employee's periodical evaluations, marketing campaigns, etc.</p>
                 <p>Design easily your ia, send invitations to answer by email and analyse answers.</p>
             </field>
@@ -515,19 +515,21 @@
 
         <!-- MENU ELEMENTS -->
 
+        <menuitem name="Impact Assessment" id="menu_ia_top" sequence="25" groups="base.group_ia_user"/>
+
         <!-- Left menu categories-->
-        <menuitem name="ias" id="menu_ias" parent="base.marketing_menu" sequence="25" groups="base.group_ia_user"/>
-        <menuitem name="Configuration" id="base.menu_marketing_config_root" parent="base.marketing_menu" sequence="30" />
+        <menuitem name="Impact Assessment" id="menu_ias" parent="menu_ia_top" sequence="25" groups="base.group_ia_user"/>
+        <menuitem name="Configuration" id="menu_ia_config" parent="menu_ia_top" sequence="30" />
 
         <!-- Left menu elements: ia -->
-        <menuitem name="ias" id="menu_ia_form" action="action_ia_form" parent="menu_ias" sequence="1"/>
-        <menuitem name="Answers" id="menu_ia_type_form1" action="action_ia_user_input" parent="menu_ias" sequence="1"/>
+        <menuitem name="Impact Assessment Forms" id="menu_ia_form" action="action_ia_form" parent="menu_ias" sequence="1"/>
+        <menuitem name="Submissions" id="menu_ia_type_form1" action="action_ia_user_input" parent="menu_ias" sequence="1"/>
 
         <!-- Left menu elements: Technical Configuration -->
-        <menuitem name="ias" id="menu_ias_configuration" parent="base.menu_marketing_config_root" groups="base.group_no_one" sequence="25" />
-        <menuitem name="Pages" id="menu_ia_page_form1" action="action_ia_page_form" parent="menu_ias_configuration" sequence="1"/>
-        <menuitem name="Questions" id="menu_ia_question_form1" action="action_ia_question_form" parent="menu_ias_configuration" sequence="2"/>
-        <menuitem name="Labels" id="menu_ia_label_form1" action="action_ia_label_form" parent="menu_ias_configuration" sequence="3"/>
-        <menuitem name="User Input Lines" id="menu_ia_response_line_form" action="action_ia_user_input_line" parent="menu_ias_configuration" sequence="4"/>
+        <menuitem name="Forms" id="menu_ias_configuration" parent="menu_ia_config" groups="base.group_no_one" sequence="25" />
+        <menuitem name="Pages" id="menu_ia_page_form1" action="action_ia_page_form" parent="menu_ia_config" sequence="1"/>
+        <menuitem name="Questions" id="menu_ia_question_form1" action="action_ia_question_form" parent="menu_ia_config" sequence="2"/>
+        <menuitem name="Labels" id="menu_ia_label_form1" action="action_ia_label_form" parent="menu_ia_config" sequence="3"/>
+        <menuitem name="User Input Lines" id="menu_ia_response_line_form" action="action_ia_user_input_line" parent="menu_ia_config" sequence="4"/>
     </data>
 </openerp>

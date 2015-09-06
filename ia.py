@@ -57,7 +57,7 @@ class ia_stage(osv.Model):
     ]
 
 
-class ia(osv.Model):
+class ia_ia(osv.Model):
     '''Settings for a multi-page/multi-question ia.
     Each ia can have one or more attached pages, and each page can display
     one or more questions.

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <!-- Graph View -->
+    <record id="view_ia_report_graph" model="ir.ui.view">
+      <field name="name">ia.report.graph</field>
+      <field name="model">ia.report</field>
+      <field name="arch" type="xml">
+        <graph orientation="horizontal" string="Impact Assessment" type="pivot" stacked="True">
+          <field name="ia_id" type="row"/>
+          <field name="partner_id" type="col"/>
+          <field name="submissions" type="measure"/>
+          <!-- <field name="value" type="measure" /> -->
+        </graph>
+      </field>
+    </record>
+
+    <!-- Filters here -->
+
+    <!-- Search View here -->
+
+    <!-- Report Window -->
+    <record id="action_ia_report" model="ir.actions.act_window">
+      <field name="name">Impact Assessment</field>
+      <field name="res_model">ia.report</field>
+      <field name="view_type">form</field>
+      <field name="view_mode">graph</field>
+      <!-- <field name="context"> </field>-->
+      <field name="view_id" ref="view_ia_report_graph"/>
+      <!-- <field name="search_view_id" ref="" /> -->
+      <field name="help">This is a report of the Impact Assessment Submissions.</field>
+    </record>
+
+    <!-- Window View -->
+    <record id="action_ia_report_graph" model="ir.actions.act_window.view">
+      <field name="sequence" eval="2" />
+      <field name="view_mode">graph</field>
+      <field name="view_id" ref="view_ia_report_graph" />
+      <field name="act_window_id" ref="action_ia_report" />
+    </record>
+
+    <!-- Menu Entry -->
+    <menuitem name="Reports" id="menu_ia_reports_group" parent="menu_ia_top" sequence="30" />
+    <menuitem action="action_ia_report" id="menu_ia_report_all" parent="menu_ia_reports_group" />
+  </data>
+</openerp>

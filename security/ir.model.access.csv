@@ -20,3 +20,5 @@ access_ia_label_manager,ia.label manager,model_ia_label,base.group_ia_manager,1,
 access_ia_user_input_manager,ia.user_input manager,model_ia_user_input,base.group_ia_manager,1,1,1,1
 access_ia_user_input_line_manager,ia.user_input_line manager,model_ia_user_input_line,base.group_ia_manager,1,1,1,1
 access_ia_stage_manager,ia.stage manager,model_ia_stage,base.group_ia_manager,1,1,1,1
+access_ia_report_manager,ia.report manager,model_ia_report,base.group_ia_manager,1,1,1,1
+access_ia_report_user,ia.report user,model_ia_report,base.group_ia_user,1,0,1,0

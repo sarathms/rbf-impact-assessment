@@ -21,4 +21,5 @@
 
 import ia
 import controllers
+import report
 import wizard

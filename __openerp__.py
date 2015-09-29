@@ -45,7 +45,8 @@ sent mails with personal token for the invitation of the ia.
         'views/ia_result.xml',
         'wizard/ia_email_compose_message.xml',
         'data/ia_stages.xml',
-        'data/ia_cron.xml'
+        'data/ia_cron.xml',
+        'report/ia_report_view.xml'
     ],
     # 'demo': ['data/ia_demo_user.xml',
     #          'data/ia_demo_feedback.xml',

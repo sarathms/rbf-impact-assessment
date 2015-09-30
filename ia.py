@@ -211,7 +211,8 @@ class ia_ia(osv.Model):
 
     _defaults = {
         'color': 0,
-        'stage_id': lambda self, *a, **kw: self._default_stage(*a, **kw)
+        'stage_id': lambda self, *a, **kw: self._default_stage(*a, **kw),
+        'auth_required': True
     }
 
     def _read_group_stage_ids(self, cr, uid, ids, domain, read_group_order=None, access_rights_uid=None, context=None):
@@ -991,7 +992,10 @@ class ia_user_input_line(osv.Model):
         'value_free_text': fields.text("Free Text answer"),
         'value_suggested': fields.many2one('ia.label', "Suggested answer"),
         'value_suggested_row': fields.many2one('ia.label', "Row answer"),
-        'quizz_mark': fields.float("Score given for this answer")
+        'quizz_mark': fields.float("Score given for this answer"),
+        'partner_id': fields.related('user_input_id', 'partner_id',
+                                    type="many2one", relation="res.partner",
+                                    string='Partner', store=True)
     }
 
     _defaults = {

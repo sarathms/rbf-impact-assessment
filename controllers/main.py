@@ -363,6 +363,17 @@ class WebsiteIA(http.Controller):
         #     filter_finish: boolean => only finished ias or not
         #
 
+    @http.route(['/ia/compare/<model("ia.ia"):ia1>/<string:token1>/vs/<model("ia.ia"):ia2>/<string:token2>'],
+                type='http', auth='user', website=True)
+    def ia_compare(self, ia1, ia2, token1=None, token2=None, **post):
+        return request.website.render('ia.ia_compare',
+                                      {'ia_left': ia1,
+                                       'ia_right': ia2,
+                                       'token_left': token1,
+                                       'token_right': token2,
+                                       'page_nr': 0,
+                                       'quizz_correction': False})
+
     def prepare_result_dict(self,ia, current_filters=None):
         """Returns dictionary having values for rendering template"""
         current_filters = current_filters if current_filters else []

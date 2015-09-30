@@ -42,6 +42,16 @@
     visibility: hidden!important;
 }
 
+.ia-compare-left {
+    float: left;
+    width: 50%;
+}
+
+.ia-compare-right {
+    float: right;
+    width: 50%;
+}
+
 @media print {
     .tab-content > .tab-pane {
         display: block;
